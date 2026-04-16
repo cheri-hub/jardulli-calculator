@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/spinner_background"
+    android:fillViewport="true"
+    tools:context=".TratorOperacaoActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <!-- Header Section -->
+        <LinearLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@drawable/card_background"
+            android:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Logo/Ícone -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🚜"
+                android:textSize="32sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Título -->
+            <TextView
+                android:id="@+id/textTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="JARDULLI AGRO MÁQUINAS\nCALCULADORA DE LASTRO"
+                android:textColor="#2E7D32"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:lineSpacingExtra="4dp" />
+
+            <!-- Subtítulo -->
+            <TextView
+                android:id="@+id/textSubtitulo3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="Trator Operações"
+                android:textColor="#666666"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Form Section -->
+        <LinearLayout
+            android:id="@+id/formLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp">
+
+            <!-- Série do Trator -->
+            <TextView
+                android:id="@+id/textSerieLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Série do Trator"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/spinnerSerie"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/spinner_background_modern"
+                android:popupBackground="@color/gray_100"
+                android:theme="@style/SpinnerTextBlack"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#333333"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Modelo do Trator -->
+            <TextView
+                android:id="@+id/textModeloLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Modelo do Trator"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/spinnerModelo"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/spinner_background_modern"
+                android:popupBackground="@color/gray_100"
+                android:theme="@style/SpinnerTextBlack"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#333333"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Ponto de Engate -->
+            <TextView
+                android:id="@+id/textEngateLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ponto de Engate"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/spinnerEngate"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/spinner_background_modern"
+                android:popupBackground="@color/gray_100"
+                android:theme="@style/SpinnerTextBlack"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#333333"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Dados do Trator -->
+            <TextView
+                android:id="@+id/textPotenciaLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dados do Trator Selecionado"
+                android:textAlignment="textStart"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/textPotencia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:padding="16dp"
+                android:text="Selecione uma série e modelo"
+                android:textStyle="normal"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- PESO DO OPERADOR (NOVO) -->
+            <TextView
+                android:id="@+id/textPesoOperadorLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peso do Operador (kg)"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/editPesoOperador"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/edittext_background"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#333333"
+                android:textSize="14sp"
+                android:hint="Digite o peso em kg"
+                android:inputType="number"
+                android:maxLines="1"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Operação -->
+            <TextView
+                android:id="@+id/textOperacaoLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Operação"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/spinnerOperacao"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/spinner_background_modern"
+                android:popupBackground="@color/gray_100"
+                android:theme="@style/SpinnerTextBlack"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#333333"
+                android:layout_marginBottom="24dp" />
+
+        </LinearLayout>
+
+        <!-- Botões Section -->
+        <LinearLayout
+            android:id="@+id/buttonsLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@+id/formLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/btnVoltar"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/button_background_outline"
+                android:text="Voltar"
+                android:textColor="#2E7D32"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                style="?android:attr/borderlessButtonStyle" />
+
+            <!-- BOTÃO AVANÇAR VERDE -->
+            <Button
+                android:id="@+id/btnAvancar"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/button_background_green"
+                android:text="Avançar"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- Espaço no final para melhor rolagem -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            app:layout_constraintTop_toBottomOf="@+id/buttonsLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

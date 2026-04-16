@@ -1,0 +1,29 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.JardulliCalculadora" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- CORES PERSONALIZADAS - VERDE JARDULLI (MODO NOTURNO) -->
+        <item name="colorPrimary">@color/green_500</item>
+        <item name="colorPrimaryVariant">@color/green_700</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/green_300</item>
+        <item name="colorSecondaryVariant">@color/green_500</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+
+        <!-- CORES DOS SPINNERS - TEXTO PRETO -->
+        <item name="android:textColorPrimary">@color/TextBlack</item>
+        <item name="android:textColorSecondary">@color/TextBlack</item>
+        <item name="android:colorControlNormal">@color/green_500</item>
+        <item name="colorControlHighlight">@color/green_300</item>
+
+        <!-- Cor dos botões por padrão -->
+        <item name="materialButtonStyle">@style/MyButtonStyle</item>
+    </style>
+
+    <style name="Theme.JardulliCalculadora" parent="Base.Theme.JardulliCalculadora" />
+
+    <!-- Style personalizado para botões -->
+    <style name="MyButtonStyle" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/green_500</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+</resources>

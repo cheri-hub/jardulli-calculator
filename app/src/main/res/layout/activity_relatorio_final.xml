@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="24dp"
+    android:background="#FFFFFF"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="80dp">
+
+        <!-- ==================== HEADER ==================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@drawable/card_background"
+            android:elevation="4dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📊"
+                android:textSize="32sp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tituloRelatorio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="JARDULLI AGRO MÁQUINAS\nRELATÓRIO DE LASTRO"
+                android:textColor="#2E7D32"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:lineSpacingExtra="4dp" />
+        </LinearLayout>
+
+        <!-- ==================== CONFIGURAÇÃO DO TRATOR ==================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🚜 Configuração do Trator"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/txtSerieTrator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Série: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="4dp"/>
+
+            <TextView
+                android:id="@+id/txtModelo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Modelo: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="4dp"/>
+
+            <TextView
+                android:id="@+id/txtOperacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Operação: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="4dp"/>
+
+            <TextView
+                android:id="@+id/txtEngate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ponto de Engate: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="4dp"/>
+
+            <TextView
+                android:id="@+id/txtPotencia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Potência: - CV"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="4dp"/>
+        </LinearLayout>
+
+        <!-- ==================== RODADOS E EIXOS ==================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🛞 Rodados e Eixos"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/txtRodadoDianteiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rodado Dianteiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtEixoDianteiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Eixo Dianteiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="8dp"/>
+
+            <TextView
+                android:id="@+id/txtRodadoTraseiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rodado Traseiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtEixoTraseiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Eixo Traseiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+        </LinearLayout>
+
+        <!-- ==================== PESOS E LASTROS ==================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚖️ Pesos e Lastros"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/txtPesoDianteiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peso Dianteiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtLastroDianteiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lastro Líquido Dianteiro: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="8dp"/>
+
+            <TextView
+                android:id="@+id/txtLastroTraseiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lastro Líquido Traseiro: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <!-- ✅ CORRETO: OS TEXTOS SERÃO SUBSTITUÍDOS DINAMICAMENTE -->
+            <TextView
+                android:id="@+id/txtPesosTraseiro91"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pesos Traseiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtPesosTraseiro227"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pesos Traseiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtPesosTraseiro454"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pesos Traseiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtPesosTraseiro625"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pesos Traseiro: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="8dp"/>
+
+            <TextView
+                android:id="@+id/txtPesoOperador"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peso Operador: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtTanqueDiesel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tanque Diesel: - L"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+        </LinearLayout>
+
+        <!-- ==================== RESULTADOS ATUAIS ==================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📊 Resultados Atuais"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/txtPesoTotalGeral"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PESO TOTAL: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtPesoPorCVLiquido"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PESO POR CV LÍQUIDO: - kg/CV"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtPesoPorCVNominal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PESO POR CV NOMINAL: - kg/CV"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="8dp"/>
+
+            <TextView
+                android:id="@+id/txtPesoTotalDianteiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PESO NO EIXO DIANTEIRO: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtPesoTOTALTraseiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PESO NO EIXO TRASEIRO: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="8dp"/>
+
+            <TextView
+                android:id="@+id/txtDivisaoDianteiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DIVISÃO DIANTEIRO: - %"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtDivisaoTraseiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DIVISÃO TRASEIRO: - %"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtDivisaoEntreEixos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DIVISÃO ENTRE EIXO: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+        </LinearLayout>
+
+        <!-- ==================== RECOMENDAÇÕES ==================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🎯 Recomendações"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/txtPesoMaximo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peso Máximo do Trator: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtRecomendacaoKWNominal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peso por KW Recomendado: - kg/kW"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtRecomendacaoCVNominal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peso por CV Recomendado: - kg/CV"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="8dp"/>
+
+            <TextView
+                android:id="@+id/txtPesoEixoDianteiroIdeal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peso Dianteiro Ideal: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtPesoEixoTraseiroIdeal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Peso Traseiro Ideal: - kg"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="8dp"/>
+
+            <TextView
+                android:id="@+id/txtDivisaoDianteiraIdeal1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Divisão Dianteira Ideal: - %"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <TextView
+                android:id="@+id/txtDivisaoDianteiraIdeal2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Divisão Traseira Ideal: - %"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginVertical="8dp"/>
+
+            <TextView
+                android:id="@+id/txtDieselLh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Diesel L/h: -"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="4dp"/>
+        </LinearLayout>
+
+        <!-- ==================== BOTÕES ==================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/btnVoltar"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/button_background_outline"
+                android:text="Voltar"
+                android:textColor="#2E7D32"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                style="?android:attr/borderlessButtonStyle" />
+
+            <Button
+                android:id="@+id/btnGerarPDF"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/button_background_primary"
+                android:text="Gerar PDF"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- ESPAÇO EXTRA NO FINAL -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="60dp" />
+
+    </LinearLayout>
+</ScrollView>

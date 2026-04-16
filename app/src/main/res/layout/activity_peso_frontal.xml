@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".PesoFrontalActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/spinner_background"
+        android:padding="24dp">
+
+        <!-- Header Section -->
+        <LinearLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp"
+            android:background="@drawable/card_background"
+            android:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Logo/Ícone -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🚜"
+                android:textSize="32sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Título -->
+            <TextView
+                android:id="@+id/txtTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="JARDULLI AGRO MÁQUINAS\nCALCULADORA DE LASTRO"
+                android:textColor="#2E7D32"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:lineSpacingExtra="4dp" />
+
+            <!-- Subtítulo -->
+            <TextView
+                android:id="@+id/txtSubtitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="Peso Frontal e Traseiro"
+                android:textColor="#666666"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Form Section - Pesos Dianteiros -->
+        <LinearLayout
+            android:id="@+id/formDianteiroLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp">
+
+            <!-- Título Seção Dianteiro -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PESO DIANTEIRO"
+                android:textColor="#2E7D32"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Dianteiro 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/textPesoDianteiro1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Item 1 (0 kg)"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    android:paddingEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerQtdDianteiro1"
+                    android:layout_width="120dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/spinner_background_modern"
+                    android:popupBackground="@color/gray_100"
+                    android:theme="@style/SpinnerTextBlack"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="#333333"
+                    android:backgroundTint="@null" />
+
+            </LinearLayout>
+
+            <!-- Dianteiro 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/textPesoDianteiro2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Item 2 (0 kg)"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    android:paddingEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerQtdDianteiro2"
+                    android:layout_width="120dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/spinner_background_modern"
+                    android:popupBackground="@color/gray_100"
+                    android:theme="@style/SpinnerTextBlack"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="#333333"
+                    android:backgroundTint="@null" />
+
+            </LinearLayout>
+
+            <!-- Resultado Dianteiro -->
+            <TextView
+                android:id="@+id/textResultadoDianteiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:padding="16dp"
+                android:text="Dianteiro: 0 kg"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+
+        <!-- Form Section - Pesos Traseiros -->
+        <LinearLayout
+            android:id="@+id/formTraseiroLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            app:layout_constraintTop_toBottomOf="@+id/formDianteiroLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp">
+
+            <!-- Título Seção Traseiro -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PESO TRASEIRO"
+                android:textColor="#2E7D32"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Traseiro 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/textPesoTraseiro1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Item 1 (0 kg)"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    android:paddingEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerQtdTraseiro1"
+                    android:layout_width="120dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/spinner_background_modern"
+                    android:popupBackground="@color/gray_100"
+                    android:theme="@style/SpinnerTextBlack"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="#333333"
+                    android:backgroundTint="@null" />
+
+            </LinearLayout>
+
+            <!-- Traseiro 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/textPesoTraseiro2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Item 2 (0 kg)"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    android:paddingEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerQtdTraseiro2"
+                    android:layout_width="120dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/spinner_background_modern"
+                    android:popupBackground="@color/gray_100"
+                    android:theme="@style/SpinnerTextBlack"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="#333333"
+                    android:backgroundTint="@null" />
+
+            </LinearLayout>
+
+            <!-- Traseiro 3 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/textPesoTraseiro3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Item 3 (0 kg)"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    android:paddingEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerQtdTraseiro3"
+                    android:layout_width="120dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/spinner_background_modern"
+                    android:popupBackground="@color/gray_100"
+                    android:theme="@style/SpinnerTextBlack"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="#333333"
+                    android:backgroundTint="@null" />
+
+            </LinearLayout>
+
+            <!-- Traseiro 4 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/textPesoTraseiro4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Item 4 (0 kg)"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    android:paddingEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerQtdTraseiro4"
+                    android:layout_width="120dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/spinner_background_modern"
+                    android:popupBackground="@color/gray_100"
+                    android:theme="@style/SpinnerTextBlack"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="#333333"
+                    android:backgroundTint="@null" />
+
+            </LinearLayout>
+
+            <!-- Resultado Traseiro -->
+            <TextView
+                android:id="@+id/textResultadoTraseiro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:padding="16dp"
+                android:text="Traseiro: 0 kg"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+
+        <!-- Form Section - Cabine -->
+        <LinearLayout
+            android:id="@+id/formCabineLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@drawable/card_background"
+            android:elevation="2dp"
+            app:layout_constraintTop_toBottomOf="@+id/formTraseiroLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp">
+
+            <!-- Título Seção Cabine -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CABINE"
+                android:textColor="#2E7D32"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Cabine -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Incluir Cabine (250 kg)?"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    android:paddingEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerCabine"
+                    android:layout_width="120dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/spinner_background_modern"
+                    android:popupBackground="@color/gray_100"
+                    android:theme="@style/SpinnerTextBlack"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="#333333"
+                    android:backgroundTint="@null" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Seção Resultado Total -->
+        <LinearLayout
+            android:id="@+id/resultadoLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@drawable/button_background_green"
+            android:elevation="2dp"
+            app:layout_constraintTop_toBottomOf="@+id/formCabineLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="RESULTADO TOTAL"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/textPesoTotal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:padding="20dp"
+                android:text="Peso Total: 0 kg"
+                android:textColor="#2E7D32"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Botões Section -->
+        <LinearLayout
+            android:id="@+id/buttonsLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@+id/resultadoLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/btnRetornar"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/button_background_outline"
+                android:text="Retornar"
+                android:textColor="#2E7D32"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                style="?android:attr/borderlessButtonStyle" />
+
+            <Button
+                android:id="@+id/btnAvancar"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/button_background_green"
+                android:backgroundTint="@null"
+                android:text="Avançar"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- Espaço no final para melhor rolagem -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            app:layout_constraintTop_toBottomOf="@+id/buttonsLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
