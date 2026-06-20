@@ -13,3 +13,13 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Backend é repositório separado (cheri-hub/jardulli-subscription).
+# Commitar somente dentro de backend/, nunca pelo repo do app.
+/backend/
+
+
+app/*.jks
+
+# Local Asaas credentials — never commit
+asaas.txt

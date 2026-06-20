@@ -8,18 +8,21 @@ Calculadora agrícola Android para parametrização de tratores: distribuição 
 - **Plataforma:** Android (minSdk 24, targetSdk 35, compileSdk 35)
 - **Build:** Gradle 8.9.0 com Kotlin DSL
 - **Pacote:** `com.example.jardullicalculadora`
-- **UI:** Material Design + ConstraintLayout
-- **Banco:** SQLite via `DBHelper` (SQLiteOpenHelper)
+- **UI:** Material Design + ConstraintLayout + RecyclerView
+- **Banco:** SQLite via `DBHelper` (SQLiteOpenHelper, versão 3)
 - **PDF:** iText 7.2.5 (`com.itextpdf:itext7-core:7.2.5`)
+- **HTTP:** OkHttp 4.12.0 (`com.squareup.okhttp3:okhttp:4.12.0`)
+- **Backend:** Supabase (Auth + REST) — credenciais em `local.properties` → `BuildConfig`
+- **Cripto:** `androidx.security:security-crypto` (EncryptedSharedPreferences AES256-GCM, cache de plano com TTL 1h)
 - **FileProvider:** `com.example.jardullicalculadora.fileprovider`
 - **Dependências:** version catalog em `gradle/libs.versions.toml`
 
 ## Arquitetura
 
-### Fluxo Linear de Activities
+### Fluxo Principal de Cálculo (Activities legadas)
 Cada tela coleta dados e passa adiante via `DadosJardulli` (Parcelable) em Intent extras:
 ```
-MainActivity
+MainActivity (hub)
   → TratorOperacaoActivity   (série, modelo, operação, engate, peso operador)
     → RodadosActivity         (rodados dianteiro/traseiro, eixos, grupos)
       → LastroLiquidoActivity (lastro líquido diant./tras. com multiplicador %)
@@ -27,9 +30,19 @@ MainActivity
           → RelatorioFinalActivity (exibe resultados + gera PDF)
 ```
 
-### Activities Declaradas mas Sem Código Fonte
-- `AvancoRatio` e `AvancoRatioActivity` — registradas no Manifest, **sem .java criado** (crashará se acessadas).
-- `PesosTraseirosActivity` e `RelatorioActivity2` — existem mas são **stubs vazios** (apenas EdgeToEdge).
+### Módulos de Conta / Assinatura (novos)
+```
+MainActivity → AuthActivity      (login/cadastro Supabase)
+            → PerfilActivity     (nome, CPF/CNPJ Mod 11, telefone)
+            → PlanosActivity     (visualização/seleção de plano)
+            → HistoricoActivity  (RecyclerView com balanços salvos)
+            → SuporteActivity    (email/WhatsApp)
+            → AvancoRatioActivity (patinagem / razão de avanço)
+```
+
+### Activities Ativas
+Todas as Activities declaradas no `AndroidManifest.xml` possuem implementação.
+Os antigos stubs `RelatorioActivity2` e `PesosTraseirosActivity` foram removidos.
 
 ## Classes Principais
 
@@ -46,10 +59,34 @@ Acumula todos os dados entre telas. Campos-chave:
 - `cabideStr`, `pesoFrontalStr`, `pesoTotal` — strings de exibição
 
 ### `DBHelper.java` — Banco SQLite
-- **Versão:** 2. Nome: `jardulli.db`
-- **Tabelas:** `tratores` (modelo, potencia, potencia_kw, peso_maximo), `ponto_engate`, `operacoes`, `lastros_liquidos` (tipo, rodado, valor_agua), `rodados_dianteiros` (rodado, grupo), `rodados_traseiros` (rodado, grupo)
+- **Versão:** 3. Nome: `jardulli.db`
+- **Tabelas:** `tratores` (modelo, potencia, potencia_kw, peso_maximo), `ponto_engate`, `operacoes`, `lastros_liquidos` (tipo, rodado, valor_agua), `rodados_dianteiros` (rodado, grupo), `rodados_traseiros` (rodado, grupo), `historico_balancos` (balanços salvos do usuário)
 - **Dados iniciais:** inseridos no `onCreate()` via `inserirDadosIniciais()`
 - NOTA: O DBHelper tem dados apenas da série JD 8R. As demais séries utilizam arrays hardcoded nas Activities.
+
+### `SupabaseClient.java` — Cliente REST/Auth
+- Singleton com OkHttp para Supabase REST API e Auth (`/auth/v1/*`).
+- Métodos: `signUp`, `signIn`, `restoreSession`, `updateProfile`, `fetchActiveSubscription`, etc.
+- Callback `SupabaseCallback { onSuccess(JSONObject), onError(String) }`.
+- **IMPORTANTE:** chamadas são assíncronas — sempre envolver UI em `runOnUiThread`.
+
+### `PlanoManager.java` — Plano + Sessão
+- Gerencia plano ativo do usuário com cache em `EncryptedSharedPreferences` (AES256-GCM).
+- Chaves: `plano_id`, `last_sync_millis`, `supabase_access_token`, `supabase_refresh_token`, `supabase_user_id`, `subscription_id`, `cloud_balanco_count`, `cloud_balanco_month`, `plan_features_json`.
+- Cache TTL: **1h** (cai para `TESTDRIVE` se expirado sem sync).
+- Métodos-chave: `podeFazerBalanco()`, `podeGerarPDF()`, `podeVerHistorico()`, `getSubscriptionId()`, `syncComSupabase()` (também sincroniza contagem cloud), `salvarSessao()`, `limparSessao()`.
+- `getBalancosMesAtual()` usa `Math.max(cloudCount, localCount)` quando logado para impedir bypass via clear-data ou troca de aparelho.
+
+### `Plano.java` — Enum de planos
+- `TESTDRIVE` (default) e demais tiers — define limites de balanços/mês, PDF, histórico, suporte.
+
+### `PerfilActivity.java`
+- Atualiza nome, CPF/CNPJ, telefone via `SupabaseClient.updateProfile`.
+- **Validação CPF/CNPJ por dígitos verificadores (Módulo 11)** — rejeita sequências repetidas.
+
+### `HistoricoActivity` / `HistoricoAdapter`
+- `RecyclerView` listando balanços salvos da tabela `historico_balancos`.
+- Requer `androidx.recyclerview:recyclerview` (declarado em `app/build.gradle.kts`).
 
 ### `TratorOperacaoActivity.java`
 - Arrays locais com dados de **9 séries** (6 ativas, 3 desativadas/comentadas)

@@ -1,6 +1,9 @@
 package com.example.jardullicalculadora;
 
+import android.content.ClipData;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class RelatorioFinalActivity extends AppCompatActivity {
@@ -37,6 +41,7 @@ public class RelatorioFinalActivity extends AppCompatActivity {
     private double pesoTotalDianteiro;
     private double pesoTOTALTraseiro;
     private double consumoDiesel;
+    private PlanoManager planoManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +49,12 @@ public class RelatorioFinalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_relatorio_final);
 
         dados = getIntent().getParcelableExtra("DADOS_JARDULLI");
+        planoManager = new PlanoManager(this);
         initBotoes();
 
         if (dados != null) {
             exibirDadosEResultados();
+            salvarBalancoNoBanco();
         } else {
             Toast.makeText(this, "Erro: Dados não recebidos!", Toast.LENGTH_SHORT).show();
             finish();
@@ -59,20 +66,93 @@ public class RelatorioFinalActivity extends AppCompatActivity {
         btnVoltar.setOnClickListener(v -> finish());
 
         Button btnGerarPDF = findViewById(R.id.btnGerarPDF);
-        btnGerarPDF.setOnClickListener(v -> gerarPDF());
+        if (planoManager.podeGerarPDF()) {
+            btnGerarPDF.setOnClickListener(v -> gerarPDF());
+        } else {
+            btnGerarPDF.setAlpha(0.5f);
+            btnGerarPDF.setOnClickListener(v -> {
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("PDF Bloqueado")
+                        .setMessage("A geração de PDF está disponível nos planos Profissional e Frotista.")
+                        .setPositiveButton("Ver Planos", (d, w) -> {
+                            if (SupabaseClient.getInstance().isLoggedIn()) {
+                                startActivity(new android.content.Intent(this, PlanosActivity.class));
+                            } else {
+                                startActivity(new android.content.Intent(this, AuthActivity.class));
+                            }
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
+            });
+        }
+    }
+
+    private void salvarBalancoNoBanco() {
+        try {
+            double divisaoDianteira = pesoTotal > 0 ? (pesoTotalDianteiro / pesoTotal) * 100 : 0;
+            double divisaoTraseira = pesoTotal > 0 ? (pesoTOTALTraseiro / pesoTotal) * 100 : 0;
+            double pesoPorCV = dados.getPesoTrator() > 0 ? pesoTotal / dados.getPesoTrator() : 0;
+            double pesoPorKW = dados.getPotenciaKW() > 0 ? pesoTotal / dados.getPotenciaKW() : 0;
+
+            DBHelper dbHelper = new DBHelper(this);
+            dbHelper.salvarBalanco(dados, pesoTotal, pesoTotalDianteiro, pesoTOTALTraseiro,
+                    divisaoDianteira, divisaoTraseira, pesoPorCV, pesoPorKW, consumoDiesel);
+            planoManager.registrarBalanco();
+
+            // Espelha o balanço na nuvem se o usuário está logado e o plano permite.
+            // Falhas de upload não interrompem o fluxo (o registro local é a fonte de verdade local).
+            SupabaseClient client = SupabaseClient.getInstance();
+            if (client.isLoggedIn() && planoManager.podeVerHistorico()) {
+                try {
+                    org.json.JSONObject balanco = new org.json.JSONObject();
+                    balanco.put("serie_trator", dados.getSerieTrator());
+                    balanco.put("modelo", dados.getModelo());
+                    balanco.put("operacao", dados.getOperacao());
+                    balanco.put("ponto_engate", dados.getPontoEngate());
+                    balanco.put("rodado_dianteiro", dados.getRodadoDianteiro());
+                    balanco.put("rodado_traseiro", dados.getRodadoTraseiro());
+                    balanco.put("peso_total", pesoTotal);
+                    balanco.put("peso_dianteiro", pesoTotalDianteiro);
+                    balanco.put("peso_traseiro", pesoTOTALTraseiro);
+                    balanco.put("divisao_dianteira", divisaoDianteira);
+                    balanco.put("divisao_traseira", divisaoTraseira);
+                    balanco.put("peso_por_cv", pesoPorCV);
+                    balanco.put("peso_por_kw", pesoPorKW);
+                    balanco.put("consumo_diesel", consumoDiesel);
+
+                    client.saveBalanco(balanco, new SupabaseClient.SupabaseCallback() {
+                        @Override
+                        public void onSuccess(org.json.JSONObject response) {
+                            Log.d(TAG, "Balanço sincronizado na nuvem");
+                        }
+
+                        @Override
+                        public void onError(String errorMessage) {
+                            Log.w(TAG, "Falha ao sincronizar balanço na nuvem: " + errorMessage);
+                        }
+                    });
+                } catch (Exception cloudEx) {
+                    Log.w(TAG, "Erro ao montar payload do balanço para nuvem", cloudEx);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erro ao salvar balanço", e);
+        }
     }
 
     private void gerarPDF() {
+        File file = null;
+        Document document = null;
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             String fileName = "Relatorio_Jardulli_" + timeStamp + ".pdf";
 
             File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File file = new File(downloadsDir, fileName);
+            file = new File(downloadsDir, fileName);
 
             PdfWriter writer = new PdfWriter(new FileOutputStream(file));
             PdfDocument pdfDoc = new PdfDocument(writer);
-            Document document = new Document(pdfDoc);
+            document = new Document(pdfDoc);
 
             // CABEÇALHO
             Table headerTable = new Table(1);
@@ -150,8 +230,8 @@ public class RelatorioFinalActivity extends AppCompatActivity {
 
             double pesoPorCVNominal = dados.getPesoTrator() > 0 ? pesoTotal / dados.getPesoTrator() : 0;
             double pesoPorKWReal = dados.getPotenciaKW() > 0 ? pesoTotal / dados.getPotenciaKW() : 0;
-            double divisaoDianteira = (pesoTotalDianteiro / pesoTotal) * 100;
-            double divisaoTraseira = (pesoTOTALTraseiro / pesoTotal) * 100;
+            double divisaoDianteira = pesoTotal > 0 ? (pesoTotalDianteiro / pesoTotal) * 100 : 0;
+            double divisaoTraseira = pesoTotal > 0 ? (pesoTOTALTraseiro / pesoTotal) * 100 : 0;
             String divisaoEntreEixos = "N/A";
             if (dados.getDistanciaEntreEixos() > 0 && pesoTotal > 0) {
                 double divisaoEixos = (pesoTotalDianteiro * dados.getDistanciaEntreEixos()) / pesoTotal;
@@ -181,7 +261,7 @@ public class RelatorioFinalActivity extends AppCompatActivity {
                 double divisaoDianteiraIdeal, divisaoTraseiraIdeal;
 
                 if (pontoEngate != null) {
-                    switch (pontoEngate.toUpperCase()) {
+                    switch (pontoEngate.toUpperCase(Locale.ROOT)) {
                         case "3 PONTOS": divisaoDianteiraIdeal = 40.0; divisaoTraseiraIdeal = 60.0; break;
                         case "B.T.O.": divisaoDianteiraIdeal = 35.0; divisaoTraseiraIdeal = 65.0; break;
                         case "REBOQUE": divisaoDianteiraIdeal = 30.0; divisaoTraseiraIdeal = 70.0; break;
@@ -237,10 +317,17 @@ public class RelatorioFinalActivity extends AppCompatActivity {
                 imageTable.setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.CENTER);
 
                 // Carregar imagem do drawable
-                InputStream ims = getResources().openRawResource(R.drawable.jartratir);
-                byte[] imageData = new byte[ims.available()];
-                ims.read(imageData);
-                ims.close();
+                InputStream ims = null;
+                byte[] imageData;
+                try {
+                    ims = getResources().openRawResource(R.raw.jartratir);
+                    imageData = new byte[ims.available()];
+                    ims.read(imageData);
+                } finally {
+                    if (ims != null) {
+                        try { ims.close(); } catch (Exception ignored) { /* noop */ }
+                    }
+                }
 
                 // Criar imagem do iText
                 com.itextpdf.io.image.ImageData imageDataPdf =
@@ -289,12 +376,21 @@ public class RelatorioFinalActivity extends AppCompatActivity {
             }
 
             document.close();
+            document = null;
             abrirPDF(file);
             Toast.makeText(this, "PDF gerado com sucesso!", Toast.LENGTH_LONG).show();
 
         } catch (Exception e) {
             Toast.makeText(this, "Erro ao gerar PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
             Log.e(TAG, "Erro ao gerar PDF", e);
+        } finally {
+            if (document != null) {
+                try {
+                    document.close();
+                } catch (Exception closeEx) {
+                    Log.w(TAG, "Falha ao fechar PDF document", closeEx);
+                }
+            }
         }
     }
 
@@ -332,15 +428,57 @@ public class RelatorioFinalActivity extends AppCompatActivity {
 
     private void abrirPDF(File file) {
         try {
-            Uri uri = FileProvider.getUriForFile(this, "com.example.jardullicalculadora.fileprovider", file);
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(uri, "application/pdf");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(intent);
+            Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+
+            Intent viewIntent = new Intent(Intent.ACTION_VIEW)
+                .setDataAndType(uri, "application/pdf")
+                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            viewIntent.setClipData(ClipData.newUri(getContentResolver(), file.getName(), uri));
+
+            if (abrirComChooser(viewIntent, uri, "Abrir PDF com")) {
+                return;
+            }
+
+            Intent shareIntent = new Intent(Intent.ACTION_SEND)
+                .setType("application/pdf")
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.setClipData(ClipData.newUri(getContentResolver(), file.getName(), uri));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+
+            if (abrirComChooser(shareIntent, uri, "Compartilhar PDF")) {
+                Toast.makeText(this,
+                        "PDF salvo. Nenhum leitor foi encontrado, então escolha um app para abrir ou compartilhar.",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            Toast.makeText(this,
+                    "PDF salvo em Downloads, mas nenhum app compatível foi encontrado para abrir automaticamente.",
+                    Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            Toast.makeText(this, "Instale um leitor de PDF", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Falha ao abrir PDF: " + file.getAbsolutePath(), e);
+            Toast.makeText(this,
+                    "PDF salvo em Downloads, mas não foi possível abrir automaticamente.",
+                    Toast.LENGTH_LONG).show();
         }
+    }
+
+    private boolean abrirComChooser(Intent baseIntent, Uri uri, String titulo) {
+        PackageManager packageManager = getPackageManager();
+        List<ResolveInfo> handlers = packageManager.queryIntentActivities(baseIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        if (handlers == null || handlers.isEmpty()) {
+            return false;
+        }
+
+        for (ResolveInfo handler : handlers) {
+            if (handler.activityInfo != null) {
+                grantUriPermission(handler.activityInfo.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+        }
+
+        startActivity(Intent.createChooser(baseIntent, titulo));
+        return true;
     }
 
     private void exibirDadosEResultados() {
@@ -463,7 +601,7 @@ public class RelatorioFinalActivity extends AppCompatActivity {
         double potenciaCV = dados.getPesoTrator();
         String operacao = dados.getOperacao();
         double fatorOperacao;
-        switch (operacao.toUpperCase()) {
+        switch (operacao.toUpperCase(Locale.ROOT)) {
             case "LEVE": fatorOperacao = 0.45; break;
             case "MÉDIO": fatorOperacao = 0.55; break;
             case "PESADO": fatorOperacao = 0.75; break;
@@ -549,10 +687,10 @@ public class RelatorioFinalActivity extends AppCompatActivity {
     }
 
     private String formatSemDecimais(double valor) {
-        return String.format("%,.0f", valor).replace(",", "X").replace(".", ",").replace("X", ".");
+        return String.format(Locale.ROOT, "%,.0f", valor).replace(",", "X").replace(".", ",").replace("X", ".");
     }
 
     private String format(double valor) {
-        return String.format("%,.2f", valor).replace(",", "X").replace(".", ",").replace("X", ".");
+        return String.format(Locale.ROOT, "%,.2f", valor).replace(",", "X").replace(".", ",").replace("X", ".");
     }
 }

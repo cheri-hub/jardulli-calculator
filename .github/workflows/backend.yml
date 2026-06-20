@@ -1,0 +1,59 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deno format check
+        run: deno fmt --check supabase/functions
+
+      - name: Deno lint
+        run: deno lint supabase/functions
+
+      - name: Type-check Edge Functions
+        run: |
+          for fn in supabase/functions/*/index.ts; do
+            echo "Checking $fn"
+            deno check "$fn"
+          done
+
+      - name: Run Deno tests (if any)
+        run: |
+          if find supabase/functions -name '*_test.ts' -o -name '*.test.ts' | grep -q .; then
+            deno test --allow-all supabase/functions
+          else
+            echo "No Deno tests found, skipping."
+          fi
