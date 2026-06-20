@@ -2,6 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Necessária para salvar PDF em Downloads em Android < 10 (API 28).
+         Em API 29+ usamos Scoped Storage e a permissão é ignorada. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="application/pdf" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="application/pdf" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -25,23 +43,7 @@
         </provider>
 
         <activity
-            android:name=".AvancoRatio"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".DadosJardulli"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".RelatorioActivity2"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".RelatorioFinalActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".PesosTraseirosActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
@@ -62,6 +64,26 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".TratorOperacaoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".HistoricoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SuporteActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AuthActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PerfilActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PlanosActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity

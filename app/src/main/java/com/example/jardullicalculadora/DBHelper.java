@@ -6,10 +6,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "jardulli.db";
-    private static final int DATABASE_VERSION = 2; // ↑ ATUALIZADO para versão 2
+    private static final int DATABASE_VERSION = 3; // versão 3 — adicionada tabela historico_balancos
 
     public static final String TABLE_TRATORES = "tratores";
     public static final String TABLE_PONTO_ENGATE = "ponto_engate";
@@ -17,6 +25,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_LASTROS_LIQUIDOS = "lastros_liquidos";
     public static final String TABLE_RODADOS_DIANTEIROS = "rodados_dianteiros";
     public static final String TABLE_RODADOS_TRASEIROS = "rodados_traseiros";
+    public static final String TABLE_HISTORICO_BALANCOS = "historico_balancos";
 
     // TABELA TRATORES ATUALIZADA ↓
     private static final String CREATE_TABLE_TRATORES =
@@ -57,6 +66,26 @@ public class DBHelper extends SQLiteOpenHelper {
                     "rodado TEXT, " +
                     "grupo INTEGER);";
 
+    private static final String CREATE_TABLE_HISTORICO_BALANCOS =
+            "CREATE TABLE " + TABLE_HISTORICO_BALANCOS + " (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "data_criacao TEXT, " +
+                    "serie_trator TEXT, " +
+                    "modelo TEXT, " +
+                    "operacao TEXT, " +
+                    "ponto_engate TEXT, " +
+                    "rodado_dianteiro TEXT, " +
+                    "rodado_traseiro TEXT, " +
+                    "peso_total REAL, " +
+                    "peso_dianteiro REAL, " +
+                    "peso_traseiro REAL, " +
+                    "divisao_dianteira REAL, " +
+                    "divisao_traseira REAL, " +
+                    "peso_por_cv REAL, " +
+                    "peso_por_kw REAL, " +
+                    "consumo_diesel REAL, " +
+                    "json_dados_completos TEXT);";
+
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -69,6 +98,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_LASTROS_LIQUIDOS);
         db.execSQL(CREATE_TABLE_RODADOS_DIANTEIROS);
         db.execSQL(CREATE_TABLE_RODADOS_TRASEIROS);
+        db.execSQL(CREATE_TABLE_HISTORICO_BALANCOS);
         inserirDadosIniciais(db);
     }
 
@@ -259,6 +289,9 @@ public class DBHelper extends SQLiteOpenHelper {
             // Atualizar os dados existentes com os novos valores
             atualizarDadosTratores(db);
         }
+        if (oldVersion < 3) {
+            db.execSQL(CREATE_TABLE_HISTORICO_BALANCOS);
+        }
     }
 
     // MÉTODO PARA ATUALIZAR OS DADOS EXISTENTES
@@ -281,6 +314,145 @@ public class DBHelper extends SQLiteOpenHelper {
             values.put("peso_maximo", (Double) trator[2]);
 
             db.update(TABLE_TRATORES, values, "modelo = ?", new String[]{(String) trator[0]});
+        }
+    }
+
+    // ──────────────── Histórico de Balanços ────────────────
+
+    public long salvarBalanco(DadosJardulli dados, double pesoTotal, double pesoDianteiro,
+                              double pesoTraseiro, double divisaoDianteira, double divisaoTraseira,
+                              double pesoPorCV, double pesoPorKW, double consumoDiesel) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        values.put("data_criacao", sdf.format(new Date()));
+        values.put("serie_trator", dados.getSerieTrator());
+        values.put("modelo", dados.getModelo());
+        values.put("operacao", dados.getOperacao());
+        values.put("ponto_engate", dados.getPontoEngate());
+        values.put("rodado_dianteiro", dados.getRodadoDianteiro());
+        values.put("rodado_traseiro", dados.getRodadoTraseiro());
+        values.put("peso_total", pesoTotal);
+        values.put("peso_dianteiro", pesoDianteiro);
+        values.put("peso_traseiro", pesoTraseiro);
+        values.put("divisao_dianteira", divisaoDianteira);
+        values.put("divisao_traseira", divisaoTraseira);
+        values.put("peso_por_cv", pesoPorCV);
+        values.put("peso_por_kw", pesoPorKW);
+        values.put("consumo_diesel", consumoDiesel);
+        values.put("json_dados_completos", dadosToJson(dados));
+
+        long id = db.insert(TABLE_HISTORICO_BALANCOS, null, values);
+        db.close();
+        return id;
+    }
+
+    public List<ContentValues> listarBalancos() {
+        List<ContentValues> lista = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT id, data_criacao, serie_trator, modelo, operacao, peso_total, " +
+                        "peso_dianteiro, peso_traseiro, divisao_dianteira, divisao_traseira " +
+                        "FROM " + TABLE_HISTORICO_BALANCOS + " ORDER BY data_criacao DESC", null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                ContentValues item = new ContentValues();
+                item.put("id", cursor.getLong(0));
+                item.put("data_criacao", cursor.getString(1));
+                item.put("serie_trator", cursor.getString(2));
+                item.put("modelo", cursor.getString(3));
+                item.put("operacao", cursor.getString(4));
+                item.put("peso_total", cursor.getDouble(5));
+                item.put("peso_dianteiro", cursor.getDouble(6));
+                item.put("peso_traseiro", cursor.getDouble(7));
+                item.put("divisao_dianteira", cursor.getDouble(8));
+                item.put("divisao_traseira", cursor.getDouble(9));
+                lista.add(item);
+            }
+            cursor.close();
+        }
+        db.close();
+        return lista;
+    }
+
+    public ContentValues getBalanco(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues result = null;
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM " + TABLE_HISTORICO_BALANCOS + " WHERE id = ?",
+                new String[]{String.valueOf(id)});
+        if (cursor != null && cursor.moveToFirst()) {
+            result = new ContentValues();
+            for (int i = 0; i < cursor.getColumnCount(); i++) {
+                String colName = cursor.getColumnName(i);
+                switch (cursor.getType(i)) {
+                    case Cursor.FIELD_TYPE_INTEGER:
+                        result.put(colName, cursor.getLong(i));
+                        break;
+                    case Cursor.FIELD_TYPE_FLOAT:
+                        result.put(colName, cursor.getDouble(i));
+                        break;
+                    case Cursor.FIELD_TYPE_STRING:
+                        result.put(colName, cursor.getString(i));
+                        break;
+                }
+            }
+            cursor.close();
+        }
+        db.close();
+        return result;
+    }
+
+    public boolean deletarBalanco(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rows = db.delete(TABLE_HISTORICO_BALANCOS, "id = ?", new String[]{String.valueOf(id)});
+        db.close();
+        return rows > 0;
+    }
+
+    public int contarBalancosMes(String anoMes) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int count = 0;
+        Cursor cursor = db.rawQuery(
+                "SELECT COUNT(*) FROM " + TABLE_HISTORICO_BALANCOS +
+                        " WHERE data_criacao LIKE ?", new String[]{anoMes + "%"});
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                count = cursor.getInt(0);
+            }
+            cursor.close();
+        }
+        db.close();
+        return count;
+    }
+
+    private String dadosToJson(DadosJardulli dados) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("serieTrator", dados.getSerieTrator());
+            json.put("modelo", dados.getModelo());
+            json.put("operacao", dados.getOperacao());
+            json.put("pontoEngate", dados.getPontoEngate());
+            json.put("rodadoDianteiro", dados.getRodadoDianteiro());
+            json.put("rodadoTraseiro", dados.getRodadoTraseiro());
+            json.put("pesoTrator", dados.getPesoTrator());
+            json.put("potenciaKW", dados.getPotenciaKW());
+            json.put("pesoMaximo", dados.getPesoMaximo());
+            json.put("pesoOperador", dados.getPesoOperador());
+            json.put("capacidadeDiesel", dados.getCapacidadeDiesel());
+            json.put("lastroDianteiro", dados.getLastroDianteiro());
+            json.put("lastroTraseiro", dados.getLastroTraseiro());
+            json.put("pesoFrontal", dados.getPesoFrontal());
+            json.put("pesoEixoDianteiro", dados.getPesoEixoDianteiro());
+            json.put("pesoEixoTraseiro", dados.getPesoEixoTraseiro());
+            json.put("quantidadePesos91", dados.getQuantidadePesos91());
+            json.put("quantidadePesos227", dados.getQuantidadePesos227());
+            json.put("quantidadePesos454", dados.getQuantidadePesos454());
+            json.put("quantidadePesos625", dados.getQuantidadePesos625());
+            return json.toString();
+        } catch (Exception e) {
+            return "{}";
         }
     }
 }

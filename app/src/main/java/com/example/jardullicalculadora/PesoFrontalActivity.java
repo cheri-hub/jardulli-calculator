@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -130,17 +131,55 @@ public class PesoFrontalActivity extends AppCompatActivity {
         String[] descDianteiros = getDescricoesDianteiros(serie);
         int[] pesosDianteiros = getPesosDianteiros(serie);
 
-        textPesoDianteiro1.setText(descDianteiros[0] + " (" + pesosDianteiros[0] + " kg)");
-        textPesoDianteiro2.setText(descDianteiros[1] + " (" + pesosDianteiros[1] + " kg)");
+        configurarLinhaPeso(textPesoDianteiro1, spinnerQtdDianteiro1, descDianteiros[0], pesosDianteiros[0]);
+        configurarLinhaPeso(textPesoDianteiro2, spinnerQtdDianteiro2, descDianteiros[1], pesosDianteiros[1]);
 
         // Configura textos dos traseiros
         String[] descTraseiros = getDescricoesTraseiros(serie);
         int[] pesosTraseiros = getPesosTraseiros(serie);
 
-        textPesoTraseiro1.setText(descTraseiros[0] + " (" + pesosTraseiros[0] + " kg)");
-        textPesoTraseiro2.setText(descTraseiros[1] + " (" + pesosTraseiros[1] + " kg)");
-        textPesoTraseiro3.setText(descTraseiros[2] + " (" + pesosTraseiros[2] + " kg)");
-        textPesoTraseiro4.setText(descTraseiros[3] + " (" + pesosTraseiros[3] + " kg)");
+        configurarLinhaPeso(textPesoTraseiro1, spinnerQtdTraseiro1, descTraseiros[0], pesosTraseiros[0]);
+        configurarLinhaPeso(textPesoTraseiro2, spinnerQtdTraseiro2, descTraseiros[1], pesosTraseiros[1]);
+        configurarLinhaPeso(textPesoTraseiro3, spinnerQtdTraseiro3, descTraseiros[2], pesosTraseiros[2]);
+        configurarLinhaPeso(textPesoTraseiro4, spinnerQtdTraseiro4, descTraseiros[3], pesosTraseiros[3]);
+
+        calcularPesos();
+    }
+
+    private void configurarLinhaPeso(TextView textView, Spinner spinner, String descricao, int peso) {
+        textView.setText(descricao + " (" + peso + " kg)");
+
+        View linha = getLinhaContainer(textView, spinner);
+        if (linha == null) {
+            Log.w(TAG, "Linha de peso sem container visivel: " + descricao);
+            return;
+        }
+
+        if (!isPesoDisponivel(descricao, peso)) {
+            spinner.setSelection(0);
+            linha.setVisibility(View.GONE);
+            return;
+        }
+
+        linha.setVisibility(View.VISIBLE);
+    }
+
+    private boolean isPesoDisponivel(String descricao, int peso) {
+        return descricao != null && !"N/A".equalsIgnoreCase(descricao.trim()) && peso > 0;
+    }
+
+    private View getLinhaContainer(TextView textView, Spinner spinner) {
+        ViewParent spinnerParent = spinner.getParent();
+        if (spinnerParent instanceof View) {
+            return (View) spinnerParent;
+        }
+
+        ViewParent textParent = textView.getParent();
+        if (textParent instanceof View) {
+            return (View) textParent;
+        }
+
+        return null;
     }
 
     private String[] getDescricoesDianteiros(String serie) {
