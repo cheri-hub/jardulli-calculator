@@ -181,6 +181,19 @@ public class PlanosActivity extends AppCompatActivity {
 
     private void enviarSubscribe(Plano plano) {
         SupabaseClient client = SupabaseClient.getInstance();
+
+        // Defesa em profundidade: re-checa login imediatamente antes de
+        // disparar o pagamento. Há um gap assíncrono desde o check em
+        // assinarPlano (fetchProfile); se a sessão caiu nesse meio-tempo
+        // (ex.: outro aparelho assumiu a conta, token revogado), não
+        // geramos o checkout.
+        if (!client.isLoggedIn()) {
+            progressPlanos.setVisibility(View.GONE);
+            Toast.makeText(this, "Faça login para assinar", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, AuthActivity.class));
+            return;
+        }
+
         progressPlanos.setVisibility(View.VISIBLE);
 
         JSONObject body = new JSONObject();
