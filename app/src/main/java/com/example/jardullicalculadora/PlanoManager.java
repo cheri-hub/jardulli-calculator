@@ -29,6 +29,8 @@ public class PlanoManager {
     private static final String KEY_USER_ID = "supabase_user_id";
     private static final String KEY_PLAN_FEATURES = "plan_features_json";
     private static final String KEY_SUBSCRIPTION_ID = "subscription_id";
+    private static final String KEY_CANCEL_REQUESTED_AT = "cancel_requested_at";
+    private static final String KEY_CURRENT_PERIOD_END = "current_period_end";
     private static final String KEY_CLOUD_BALANCO_COUNT = "cloud_balanco_count";
     private static final String KEY_CLOUD_BALANCO_MONTH = "cloud_balanco_month";
     private static final String KEY_DEVICE_ID = "device_id";
@@ -87,6 +89,35 @@ public class PlanoManager {
      */
     public String getSubscriptionId() {
         return prefs.getString(KEY_SUBSCRIPTION_ID, null);
+    }
+
+    /**
+     * True quando a assinatura já teve cancelamento solicitado mas o acesso
+     * continua até o fim do período pago (status ainda 'active'). Usado pela
+     * UI para mostrar "cancelada — ativa até DD/MM" em vez de oferecer cancelar
+     * de novo.
+     */
+    public boolean isCancelamentoPendente() {
+        String v = prefs.getString(KEY_CANCEL_REQUESTED_AT, null);
+        return v != null && !v.isEmpty();
+    }
+
+    /**
+     * Fim do período já pago, formatado como dd/MM/yyyy para exibição.
+     * Retorna null se não houver assinatura/data. Aceita ISO-8601 do backend.
+     */
+    public String getDataFimPeriodoFormatada() {
+        String iso = prefs.getString(KEY_CURRENT_PERIOD_END, null);
+        if (iso == null || iso.isEmpty()) return null;
+        try {
+            // current_period_end vem como ISO-8601 (ex.: 2026-07-28T19:19:09.862+00:00).
+            String datePart = iso.length() >= 10 ? iso.substring(0, 10) : iso;
+            SimpleDateFormat in = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
+            Date d = in.parse(datePart);
+            return new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(d);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean podeGerarPDF() {
@@ -184,7 +215,11 @@ public class PlanoManager {
                     if (row == null) {
                         // Sem assinatura ativa = Testdrive
                         atualizarPlano(Plano.TESTDRIVE, null);
-                        prefs.edit().remove(KEY_SUBSCRIPTION_ID).apply();
+                        prefs.edit()
+                                .remove(KEY_SUBSCRIPTION_ID)
+                                .remove(KEY_CANCEL_REQUESTED_AT)
+                                .remove(KEY_CURRENT_PERIOD_END)
+                                .apply();
                         Log.d(TAG, "Sync OK: sem assinatura ativa, plano=TESTDRIVE");
                         sincronizarContagemCloud();
                         if (callback != null) callback.onSyncComplete(true);
@@ -195,9 +230,26 @@ public class PlanoManager {
                     Plano novoPlano = Plano.fromId(planSlug);
                     JSONObject features = row.optJSONObject("plan_features");
                     String subId = row.optString("subscription_id", null);
+                    String cancelReq = row.isNull("cancel_requested_at")
+                            ? null : row.optString("cancel_requested_at", null);
+                    String periodEnd = row.isNull("current_period_end")
+                            ? null : row.optString("current_period_end", null);
                     atualizarPlano(novoPlano, features);
-                    prefs.edit().putString(KEY_SUBSCRIPTION_ID, subId).apply();
-                    Log.d(TAG, "Sync OK: plano=" + novoPlano.getId());
+                    SharedPreferences.Editor ed = prefs.edit()
+                            .putString(KEY_SUBSCRIPTION_ID, subId);
+                    if (cancelReq != null && !cancelReq.isEmpty()) {
+                        ed.putString(KEY_CANCEL_REQUESTED_AT, cancelReq);
+                    } else {
+                        ed.remove(KEY_CANCEL_REQUESTED_AT);
+                    }
+                    if (periodEnd != null && !periodEnd.isEmpty()) {
+                        ed.putString(KEY_CURRENT_PERIOD_END, periodEnd);
+                    } else {
+                        ed.remove(KEY_CURRENT_PERIOD_END);
+                    }
+                    ed.apply();
+                    Log.d(TAG, "Sync OK: plano=" + novoPlano.getId()
+                            + (cancelReq != null ? " (cancelamento pendente)" : ""));
                     // Em paralelo, atualiza contagem cloud do mês (best-effort)
                     sincronizarContagemCloud();
                     if (callback != null) callback.onSyncComplete(true);
@@ -295,6 +347,8 @@ public class PlanoManager {
                 .remove(KEY_USER_ID)
                 .remove(KEY_PLAN_FEATURES)
                 .remove(KEY_SUBSCRIPTION_ID)
+                .remove(KEY_CANCEL_REQUESTED_AT)
+                .remove(KEY_CURRENT_PERIOD_END)
                 .remove(KEY_CLOUD_BALANCO_COUNT)
                 .remove(KEY_CLOUD_BALANCO_MONTH)
                 .putString(KEY_PLANO_ID, Plano.TESTDRIVE.getId())
