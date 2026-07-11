@@ -1,12 +1,16 @@
 package com.example.jardullicalculadora;
 
 import android.content.ClipData;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
@@ -27,7 +31,9 @@ import com.itextpdf.layout.element.Cell;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -141,16 +147,36 @@ public class RelatorioFinalActivity extends AppCompatActivity {
     }
 
     private void gerarPDF() {
-        File file = null;
+        File legacyFile = null;
+        Uri mediaStoreUri = null;
         Document document = null;
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             String fileName = "Relatorio_Jardulli_" + timeStamp + ".pdf";
 
-            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            file = new File(downloadsDir, fileName);
+            OutputStream out;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Scoped storage (API 29+): grava via MediaStore, que devolve uma
+                // content:// URI pronta para uso — evita depender de File direto na
+                // pasta pública Downloads, que é instável/bloqueada nessas versões.
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+                values.put(MediaStore.Downloads.MIME_TYPE, "application/pdf");
+                values.put(MediaStore.Downloads.IS_PENDING, 1);
 
-            PdfWriter writer = new PdfWriter(new FileOutputStream(file));
+                ContentResolver resolver = getContentResolver();
+                mediaStoreUri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (mediaStoreUri == null) {
+                    throw new IOException("Falha ao criar arquivo no MediaStore");
+                }
+                out = resolver.openOutputStream(mediaStoreUri);
+            } else {
+                File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                legacyFile = new File(downloadsDir, fileName);
+                out = new FileOutputStream(legacyFile);
+            }
+
+            PdfWriter writer = new PdfWriter(out);
             PdfDocument pdfDoc = new PdfDocument(writer);
             document = new Document(pdfDoc);
 
@@ -377,10 +403,25 @@ public class RelatorioFinalActivity extends AppCompatActivity {
 
             document.close();
             document = null;
-            abrirPDF(file);
+
+            if (mediaStoreUri != null) {
+                ContentValues doneValues = new ContentValues();
+                doneValues.put(MediaStore.Downloads.IS_PENDING, 0);
+                getContentResolver().update(mediaStoreUri, doneValues, null, null);
+                abrirPDF(mediaStoreUri, fileName);
+            } else {
+                abrirPDF(legacyFile);
+            }
             Toast.makeText(this, "PDF gerado com sucesso!", Toast.LENGTH_LONG).show();
 
         } catch (Exception e) {
+            if (mediaStoreUri != null) {
+                try {
+                    getContentResolver().delete(mediaStoreUri, null, null);
+                } catch (Exception cleanupEx) {
+                    Log.w(TAG, "Falha ao limpar entrada pendente no MediaStore", cleanupEx);
+                }
+            }
             Toast.makeText(this, "Erro ao gerar PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
             Log.e(TAG, "Erro ao gerar PDF", e);
         } finally {
@@ -429,12 +470,22 @@ public class RelatorioFinalActivity extends AppCompatActivity {
     private void abrirPDF(File file) {
         try {
             Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+            abrirPDF(uri, file.getName());
+        } catch (Exception e) {
+            Log.e(TAG, "Falha ao abrir PDF: " + file.getAbsolutePath(), e);
+            Toast.makeText(this,
+                    "PDF salvo em Downloads, mas não foi possível abrir automaticamente.",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
 
+    private void abrirPDF(Uri uri, String fileName) {
+        try {
             Intent viewIntent = new Intent(Intent.ACTION_VIEW)
                 .setDataAndType(uri, "application/pdf")
                 .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            viewIntent.setClipData(ClipData.newUri(getContentResolver(), file.getName(), uri));
+            viewIntent.setClipData(ClipData.newUri(getContentResolver(), fileName, uri));
 
             if (abrirComChooser(viewIntent, uri, "Abrir PDF com")) {
                 return;
@@ -443,7 +494,7 @@ public class RelatorioFinalActivity extends AppCompatActivity {
             Intent shareIntent = new Intent(Intent.ACTION_SEND)
                 .setType("application/pdf")
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            shareIntent.setClipData(ClipData.newUri(getContentResolver(), file.getName(), uri));
+            shareIntent.setClipData(ClipData.newUri(getContentResolver(), fileName, uri));
             shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
 
             if (abrirComChooser(shareIntent, uri, "Compartilhar PDF")) {
@@ -457,7 +508,7 @@ public class RelatorioFinalActivity extends AppCompatActivity {
                     "PDF salvo em Downloads, mas nenhum app compatível foi encontrado para abrir automaticamente.",
                     Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            Log.e(TAG, "Falha ao abrir PDF: " + file.getAbsolutePath(), e);
+            Log.e(TAG, "Falha ao abrir PDF: " + uri, e);
             Toast.makeText(this,
                     "PDF salvo em Downloads, mas não foi possível abrir automaticamente.",
                     Toast.LENGTH_LONG).show();
