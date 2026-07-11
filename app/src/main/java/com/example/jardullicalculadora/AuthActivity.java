@@ -8,10 +8,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class AuthActivity extends AppCompatActivity {
@@ -97,28 +99,9 @@ public class AuthActivity extends AppCompatActivity {
                         PlanoManager planoManager = new PlanoManager(AuthActivity.this);
                         planoManager.salvarSessao(accessToken, refreshToken, userId);
 
-                        // Registra este aparelho como o único autorizado.
-                        // Se outra instância logada existir, na próxima sync
-                        // dela o device_id não vai bater e ela cairá no logout.
-                        SupabaseClient.getInstance().registerDevice(
-                                planoManager.getDeviceId(),
-                                new SupabaseClient.SupabaseCallback() {
-                                    @Override public void onSuccess(JSONObject ignored) {}
-                                    @Override public void onError(String err) {
-                                        // best-effort: não bloqueia o login
-                                    }
-                                });
-
-                        // Sincronizar plano
-                        planoManager.syncComSupabase(success -> runOnUiThread(() -> {
-                            Toast.makeText(AuthActivity.this,
-                                    modoLogin ? "Login realizado!" : "Cadastro realizado!",
-                                    Toast.LENGTH_SHORT).show();
-
-                            // Redirecionar para PlanosActivity
-                            startActivity(new Intent(AuthActivity.this, PlanosActivity.class));
-                            finish();
-                        }));
+                        // Se a conta já estiver ativa em outro aparelho, pergunta
+                        // antes de transferir o acesso (sobrescrever o device id).
+                        concluirLoginComChecagemDeDispositivo(planoManager);
                     } else {
                         Toast.makeText(AuthActivity.this,
                                 modoLogin ? "Login realizado!" : "Verifique seu email para confirmar o cadastro",
@@ -144,6 +127,87 @@ public class AuthActivity extends AppCompatActivity {
         } else {
             client.signUp(email, senha, callback);
         }
+    }
+
+    /**
+     * Após salvar a sessão, verifica se a conta já está registrada em OUTRO
+     * aparelho. Se estiver, pergunta se o usuário quer transferir o acesso para
+     * este aparelho antes de sobrescrever o {@code current_device_id}. Sem outro
+     * aparelho (ou se a checagem falhar por rede), prossegue direto.
+     */
+    private void concluirLoginComChecagemDeDispositivo(PlanoManager planoManager) {
+        String local = planoManager.getDeviceId();
+        SupabaseClient.getInstance().fetchCurrentDeviceId(new SupabaseClient.SupabaseCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                runOnUiThread(() -> {
+                    String remoto = null;
+                    JSONArray data = response.optJSONArray("data");
+                    if (data != null && data.length() > 0) {
+                        JSONObject row = data.optJSONObject(0);
+                        if (row != null && !row.isNull("current_device_id")) {
+                            remoto = row.optString("current_device_id", null);
+                        }
+                    }
+                    boolean outroAparelho = remoto != null && !remoto.isEmpty()
+                            && !"null".equals(remoto) && !remoto.equals(local);
+                    if (outroAparelho) {
+                        perguntarTransferencia(planoManager);
+                    } else {
+                        prosseguirRegistrandoDispositivo(planoManager);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                // Sem conseguir checar (ex.: offline), mantém o comportamento atual.
+                runOnUiThread(() -> prosseguirRegistrandoDispositivo(planoManager));
+            }
+        });
+    }
+
+    private void perguntarTransferencia(PlanoManager planoManager) {
+        new AlertDialog.Builder(this)
+                .setTitle("Conta ativa em outro aparelho")
+                .setMessage("Sua conta já está ativa em outro aparelho. Deseja transferir o "
+                        + "acesso para este aparelho? O outro aparelho será desconectado.")
+                .setCancelable(false)
+                .setPositiveButton("Transferir", (d, w) ->
+                        prosseguirRegistrandoDispositivo(planoManager))
+                .setNegativeButton("Cancelar", (d, w) -> {
+                    // Não transfere: encerra a sessão neste aparelho; o acesso
+                    // permanece no aparelho antigo.
+                    planoManager.forcarLogout();
+                    Toast.makeText(this, "Acesso mantido no outro aparelho.",
+                            Toast.LENGTH_LONG).show();
+                })
+                .show();
+    }
+
+    /**
+     * Registra este aparelho como o único autorizado (sobrescreve o anterior,
+     * que cairá no logout na próxima sync), sincroniza o plano e segue para
+     * a tela de planos.
+     */
+    private void prosseguirRegistrandoDispositivo(PlanoManager planoManager) {
+        SupabaseClient.getInstance().registerDevice(
+                planoManager.getDeviceId(),
+                new SupabaseClient.SupabaseCallback() {
+                    @Override public void onSuccess(JSONObject ignored) {}
+                    @Override public void onError(String err) {
+                        // best-effort: não bloqueia o login
+                    }
+                });
+
+        planoManager.syncComSupabase(success -> runOnUiThread(() -> {
+            Toast.makeText(AuthActivity.this,
+                    modoLogin ? "Login realizado!" : "Cadastro realizado!",
+                    Toast.LENGTH_SHORT).show();
+
+            startActivity(new Intent(AuthActivity.this, PlanosActivity.class));
+            finish();
+        }));
     }
 
     private void setLoading(boolean loading) {
