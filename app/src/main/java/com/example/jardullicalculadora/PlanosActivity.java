@@ -106,7 +106,18 @@ public class PlanosActivity extends AppCompatActivity {
             boolean isAtual = planoManager.getPlanoAtual() == plano;
             if (isAtual) {
                 txtBadge.setVisibility(View.VISIBLE);
-                if (plano != Plano.TESTDRIVE && planoManager.getSubscriptionId() != null) {
+                boolean pago = plano != Plano.TESTDRIVE
+                        && planoManager.getSubscriptionId() != null;
+                boolean cancelPendente = pago && planoManager.isCancelamentoPendente();
+                if (cancelPendente) {
+                    // Cancelada, mas acesso mantido até o fim do período pago.
+                    String fim = planoManager.getDataFimPeriodoFormatada();
+                    txtBadge.setText("CANCELADA");
+                    btnAssinar.setText(fim != null ? "Ativa até " + fim : "Cancelada");
+                    btnAssinar.setEnabled(false);
+                    btnAssinar.setBackgroundTintList(
+                            android.content.res.ColorStateList.valueOf(0xFF9E9E9E));
+                } else if (pago) {
                     btnAssinar.setText("Cancelar Plano");
                     btnAssinar.setBackgroundTintList(
                             android.content.res.ColorStateList.valueOf(0xFFD32F2F));
