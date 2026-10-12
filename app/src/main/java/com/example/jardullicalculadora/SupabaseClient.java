@@ -34,6 +34,11 @@ public class SupabaseClient {
     private String accessToken;
     private String refreshToken;
     private String userId;
+    /**
+     * true enquanto a sessão em memória veio da recuperação de senha. Nesse estado
+     * não há refresh nem {@link SessionListener}: a sessão nunca é persistida.
+     */
+    private volatile boolean sessaoTemporaria;
 
     /** Listener opcional para persistir tokens renovados (sessão). */
     public interface SessionListener {
@@ -151,6 +156,85 @@ public class SupabaseClient {
         accessToken = null;
         refreshToken = null;
         userId = null;
+        sessaoTemporaria = false;
+    }
+
+    // ──────────────── Recuperação de senha ────────────────
+
+    /** true se há uma sessão de recuperação de senha viva em memória. */
+    public boolean isSessaoTemporaria() { return sessaoTemporaria; }
+
+    /**
+     * Pede o envio do código de recuperação por e-mail. O Supabase responde 200
+     * mesmo quando o e-mail não existe (não revela quais contas existem).
+     */
+    public void recoverPassword(String email, SupabaseCallback callback) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("email", email);
+        } catch (JSONException e) {
+            callback.onError("Erro ao montar requisição: " + e.getMessage());
+            return;
+        }
+        executeAsync(buildAuthRequest("/auth/v1/recover", body), callback);
+    }
+
+    /**
+     * Troca o código de recuperação por uma sessão temporária, mantida só em
+     * memória (não é persistida). Deve ser descartada com {@link #signOut()}.
+     */
+    public void verifyRecovery(String email, String codigo, SupabaseCallback callback) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("type", "recovery");
+            body.put("email", email);
+            body.put("token", codigo);
+        } catch (JSONException e) {
+            callback.onError("Erro ao montar requisição: " + e.getMessage());
+            return;
+        }
+        executeAsync(buildAuthRequest("/auth/v1/verify", body), new SupabaseCallback() {
+            @Override
+            public void onSuccess(JSONObject json) {
+                String access = json.optString("access_token", "");
+                if (access.isEmpty()) {
+                    callback.onError("Não foi possível validar o código.");
+                    return;
+                }
+                sessaoTemporaria = true;
+                accessToken = access;
+                refreshToken = json.optString("refresh_token", null);
+                JSONObject user = json.optJSONObject("user");
+                if (user != null) {
+                    userId = user.optString("id", null);
+                }
+                callback.onSuccess(json);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    /** Define a nova senha da sessão atual (a sessão temporária de {@link #verifyRecovery}). */
+    public void updatePassword(String novaSenha, SupabaseCallback callback) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("password", novaSenha);
+        } catch (JSONException e) {
+            callback.onError("Erro ao montar requisição: " + e.getMessage());
+            return;
+        }
+        Request request = new Request.Builder()
+                .url(supabaseUrl + "/auth/v1/user")
+                .addHeader("apikey", anonKey)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .addHeader("Content-Type", "application/json")
+                .put(RequestBody.create(body.toString(), JSON))
+                .build();
+        executeAsync(request, callback);
     }
 
     public boolean isLoggedIn() {
@@ -161,6 +245,7 @@ public class SupabaseClient {
     public String getUserId() { return userId; }
 
     public void restoreSession(String token, String refresh, String uid) {
+        this.sessaoTemporaria = false;
         this.accessToken = token;
         this.refreshToken = refresh;
         this.userId = uid;
@@ -444,7 +529,8 @@ public class SupabaseClient {
                 int code = response.code();
 
                 // Token expirado: tenta refresh + retry uma vez
-                if (code == 401 && allowRefresh && refreshToken != null && !refreshToken.isEmpty()) {
+                if (code == 401 && allowRefresh && !sessaoTemporaria
+                        && refreshToken != null && !refreshToken.isEmpty()) {
                     Log.d(TAG, "401 recebido, tentando refresh token");
                     refreshAccessToken(new SupabaseCallback() {
                         @Override

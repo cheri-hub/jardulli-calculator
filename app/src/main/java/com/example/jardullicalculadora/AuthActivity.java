@@ -8,6 +8,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,9 +25,24 @@ public class AuthActivity extends AppCompatActivity {
     private Button btnEntrar;
     private TextView txtToggle;
     private TextView txtTituloAuth;
+    private TextView txtEsqueciSenha;
     private ProgressBar progressAuth;
 
     private boolean modoLogin = true;
+
+    /** Volta da recuperação de senha: preenche o e-mail e pede para entrar com a nova senha. */
+    private final ActivityResultLauncher<Intent> recuperarSenhaLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                Intent data = result.getData();
+                if (result.getResultCode() != RESULT_OK || data == null) return;
+                String email = data.getStringExtra(RecuperarSenhaActivity.EXTRA_EMAIL);
+                if (email != null) editEmail.setText(email);
+                editSenha.setText("");
+                modoLogin = true;
+                atualizarUI();
+                Toast.makeText(this, "Senha redefinida. Entre com a nova senha.",
+                        Toast.LENGTH_LONG).show();
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +54,16 @@ public class AuthActivity extends AppCompatActivity {
         btnEntrar = findViewById(R.id.btnEntrar);
         txtToggle = findViewById(R.id.txtToggle);
         txtTituloAuth = findViewById(R.id.txtTituloAuth);
+        txtEsqueciSenha = findViewById(R.id.txtEsqueciSenha);
         progressAuth = findViewById(R.id.progressAuth);
 
         btnEntrar.setOnClickListener(v -> executarAuth());
+
+        txtEsqueciSenha.setOnClickListener(v -> {
+            String email = editEmail.getText() != null ? editEmail.getText().toString().trim() : "";
+            recuperarSenhaLauncher.launch(new Intent(this, RecuperarSenhaActivity.class)
+                    .putExtra(RecuperarSenhaActivity.EXTRA_EMAIL, email));
+        });
 
         txtToggle.setOnClickListener(v -> {
             modoLogin = !modoLogin;
@@ -55,6 +79,7 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void atualizarUI() {
+        txtEsqueciSenha.setVisibility(modoLogin ? View.VISIBLE : View.GONE);
         if (modoLogin) {
             txtTituloAuth.setText("Entrar");
             btnEntrar.setText("Entrar");
