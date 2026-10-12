@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Deve ser atualizado a cada task concluída (regra no `CLAUDE.md`):
 > mover o item para "Resolvido" com data e PR, e registrar o que for descoberto no caminho.
-> **Última atualização:** 12/out/2026
+> **Última atualização:** 12/out/2026 · ordem de execução em [`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md)
 
 Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 
@@ -21,6 +21,8 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 | P7 | Secret `SUPABASE_DB_PASSWORD` do environment `production` é de 26/abr, mas o `.secrets` foi alterado em 02/ago. Se a senha do banco realmente mudou, atualizar o secret (senão o próximo deploy falha em `supabase link`) | 🔍 | Usuário |
 | P8 | `asaas.txt` na raiz do app guarda chaves reais em texto puro (gitignored). Após o cutover, mover para um gerenciador de senhas e apagar o arquivo | ⬜ | Usuário |
 | P9 | `ASAAS_WEBHOOK_TOKEN` no Supabase não é alterado desde **18/jun** (era o de sandbox); o runbook pede um token novo para produção. Se o `authToken` do webhook de produção no Asaas for diferente do secret, todo webhook volta `401` e assinaturas pagas não ativam. Garantir que os dois são iguais (ou gerar um novo e atualizar os dois) | 🔍 | Usuário |
+| P10 | **Recuperação de senha ausente**: o app não tem "esqueci minha senha" (só `signup`, login, `logout` e `refresh` no `SupabaseClient`). Quem esquece a senha perde a conta e o plano pago. Plano: fluxo por código de 6 dígitos (`/auth/v1/recover` → `/auth/v1/verify` → `PUT /auth/v1/user`) + template de e-mail com `{{ .Token }}`. Detalhes em [`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md) (Fase 1) | ⬜ | Claude + Usuário |
+| P11 | **SMTP próprio no Supabase**: o e-mail padrão tem limite baixo de envios e atende cadastro (confirmação) e recuperação de senha. Configurar em Authentication → SMTP Settings antes do lançamento | ⬜ | Usuário |
 
 ---
 
@@ -28,7 +30,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 
 - ⬜ **Aparelho desconectado por transferência cai silenciosamente** para TESTDRIVE no próximo sync; falta avisar o usuário no aparelho antigo.
 - ⬜ **Single-device é só client-side**: o JWT do aparelho antigo continua válido no servidor até expirar.
-- ⬜ **Docs obsoletos** (ainda descrevem o AbacatePay): `OPS_ABACATE_PRODUCTS_SETUP.md`, `OPS_WEBHOOK_ABACATEPAY.md`, `OPS_E2E_TEST.md` (precisa de reescrita para Asaas/cartão) e `backend/README.md`. Revisar também `PROXIMOS_PASSOS*.md`.
+- ⬜ **Docs obsoletos** (ainda descrevem o AbacatePay): `OPS_ABACATE_PRODUCTS_SETUP.md`, `OPS_WEBHOOK_ABACATEPAY.md`, `OPS_E2E_TEST.md` (precisa de reescrita para Asaas/cartão) e `backend/README.md`. `PROXIMOS_PASSOS.md` foi reescrito em 12/out (plano real); `PROXIMOS_PASSOS_TESTES_ASAAS.md` segue obsoleto (diz que há 0 testes Deno e sandbox pendente).
 - ⬜ **Casos de uso**: `CASOS_DE_USO.md` (UC-6.2) diz que o PDF usa MediaStore — passou a ser verdade só após o fix de 02/ago; reconferir o texto.
 - ⬜ Duas cópias do backend (`backend/` e `C:\repo\jardulli-subscription`): hoje sincronizadas, mas podem divergir de novo. Trabalhar só pelo `backend/`.
 - ⬜ Supabase CLI local está na 2.51.0 (atual: 2.120.0). O login é global: verificar com `supabase projects list` que `Jardulli Subscriptions` aparece antes de usar o CLI (ver `CLAUDE.md`).
