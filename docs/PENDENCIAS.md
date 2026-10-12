@@ -12,7 +12,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 
 | # | Item | Status | Quem |
 |---|---|---|---|
-| P1 | **Cutover do Asaas sandbox → produção** (chave `$aact_prod_`, `ASAAS_BASE_URL`, novo `ASAAS_WEBHOOK_TOKEN`, webhook na conta de produção, smoke test com cartão real). Runbook: [`OPS_ASAAS_PRODUCAO.md`](OPS_ASAAS_PRODUCAO.md) | 🔍 usuário diz que já foi feito; **não verificado** | Usuário |
+| P1 | **Cutover do Asaas sandbox → produção** (chave `$aact_prod_`, `ASAAS_BASE_URL`, novo `ASAAS_WEBHOOK_TOKEN`, webhook na conta de produção, smoke test com cartão real). Runbook: [`OPS_ASAAS_PRODUCAO.md`](OPS_ASAAS_PRODUCAO.md) | 🔍 usuário diz que já foi feito. Indício (12/out): `ASAAS_API_KEY` e `ASAAS_BASE_URL` foram alterados juntos em 02/ago 14:30–14:31. O valor da URL não dá para ver pelo CLI, então **não está provado**. Confirmar: checkout abre em `www.asaas.com`, webhook ativo no painel de produção e ao menos um `webhook_events` com `processed = true` depois de 02/ago | Usuário |
 | P2 | **Rotacionar a service-role key** que vazou em texto puro em docs antigos (já redigida no repo, mas a chave segue válida até ser trocada no painel). Hoje ela também está em texto puro no `.secrets` das duas cópias do backend | ⬜ | Usuário |
 | P3 | **Testar em aparelho real** o que foi entregue sem teste manual: PDF no Android 10+ (gera e abre), transferência de dispositivo (Transferir / Cancelar), badge "CANCELADA — Ativa até DD/MM" após cancelar plano pago | ⬜ | Usuário |
 | P4 | **Release assinado**: keystore (`STORE_FILE`, `STORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` no `local.properties`), `versionCode`/`versionName` (hoje 1 / "1.0"), decidir `isMinifyEnabled` (hoje `false`; se ligar, o iText provavelmente precisa de regras no `proguard-rules.pro`) | ⬜ | Usuário + Claude |
@@ -20,6 +20,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 | P6 | Environment `production` do repo do backend **sem *required reviewers***: todo push em `supabase/` na `main` faz deploy direto em produção | ⬜ opcional | Usuário |
 | P7 | Secret `SUPABASE_DB_PASSWORD` do environment `production` é de 26/abr, mas o `.secrets` foi alterado em 02/ago. Se a senha do banco realmente mudou, atualizar o secret (senão o próximo deploy falha em `supabase link`) | 🔍 | Usuário |
 | P8 | `asaas.txt` na raiz do app guarda chaves reais em texto puro (gitignored). Após o cutover, mover para um gerenciador de senhas e apagar o arquivo | ⬜ | Usuário |
+| P9 | `ASAAS_WEBHOOK_TOKEN` no Supabase não é alterado desde **18/jun** (era o de sandbox); o runbook pede um token novo para produção. Se o `authToken` do webhook de produção no Asaas for diferente do secret, todo webhook volta `401` e assinaturas pagas não ativam. Garantir que os dois são iguais (ou gerar um novo e atualizar os dois) | 🔍 | Usuário |
 
 ---
 
@@ -30,6 +31,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 - ⬜ **Docs obsoletos** (ainda descrevem o AbacatePay): `OPS_ABACATE_PRODUCTS_SETUP.md`, `OPS_WEBHOOK_ABACATEPAY.md`, `OPS_E2E_TEST.md` (precisa de reescrita para Asaas/cartão) e `backend/README.md`. Revisar também `PROXIMOS_PASSOS*.md`.
 - ⬜ **Casos de uso**: `CASOS_DE_USO.md` (UC-6.2) diz que o PDF usa MediaStore — passou a ser verdade só após o fix de 02/ago; reconferir o texto.
 - ⬜ Duas cópias do backend (`backend/` e `C:\repo\jardulli-subscription`): hoje sincronizadas, mas podem divergir de novo. Trabalhar só pelo `backend/`.
+- ⬜ Supabase CLI local está na 2.51.0 (atual: 2.120.0). O login é global: verificar com `supabase projects list` que `Jardulli Subscriptions` aparece antes de usar o CLI (ver `CLAUDE.md`).
 
 ---
 
@@ -59,6 +61,8 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 
 | Data | Item | Referência |
 |---|---|---|
+| 12/out/2026 | Edge Function órfã `webhook-abacatepay` removida de produção (continuava ativa e pública depois da migração) | `supabase functions delete` |
+| 12/out/2026 | Verificado via CLI: 18/18 migrations locais aplicadas no remoto; 4 Edge Functions do Asaas `ACTIVE` (deploy de 02/ago) | — |
 | 02/ago/2026 | CI do backend e deploy do Supabase movidos para o repo correto (`supabase-ci.yml`, `supabase-deploy.yml`); deploy validado em produção | jardulli-subscription#3, jardulli-calculator#4 |
 | 02/ago/2026 | CI do app corrigido (verde pela 1ª vez): removido `org.gradle.java.home` local do `gradle.properties` | jardulli-calculator#3 |
 | 02/ago/2026 | PDF não abria no Android 10+: gravação via `MediaStore.Downloads`; conflito de nomes no `file_paths.xml` | jardulli-calculator#3 |
