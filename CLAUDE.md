@@ -74,15 +74,20 @@ Conta e extras: `AuthActivity`, `PerfilActivity` (CPF/CNPJ Mod 11), `PlanosActiv
 
 ## Docs (`docs/`)
 
-Úteis: `OPS_ASAAS_PRODUCAO.md` (cutover sandbox→prod), `OPS_WEBHOOK_ASAAS.md`, `PLANO_MIGRACAO_ASAAS.md`, `ASAAS_API.md`, `CASOS_DE_USO.md`, `SETUP_CI_CD.md`, `PENDENCIAS.md` (de abr/2026).
+Úteis: `OPS_ASAAS_PRODUCAO.md` (cutover sandbox→prod), `OPS_WEBHOOK_ASAAS.md`, `PLANO_MIGRACAO_ASAAS.md`, `ASAAS_API.md`, `CASOS_DE_USO.md`, `SETUP_CI_CD.md`, **`PENDENCIAS.md`** (documento vivo, ver acima).
 **Obsoletos** (ainda falam de AbacatePay): `*ABACATE*`, `OPS_E2E_TEST.md`, `backend/README.md`.
 
-## Falta para produção (snapshot de 02/ago/2026 — conferir)
+## Pendências — documento vivo (obrigatório)
 
-- Asaas ainda em sandbox → executar `docs/OPS_ASAAS_PRODUCAO.md`.
-- Rotacionar a service-role key que já vazou em docs antigos (hoje redigida no repo).
-- Keystore de release + ficha da Play Store; release com `isMinifyEnabled = false`, `versionCode = 1`.
-- Environment `production` do repo do backend sem *required reviewers*.
+A lista de pendências (produção, melhorias, débitos técnicos e o histórico do que foi resolvido) fica em **`docs/PENDENCIAS.md`**. É a única fonte; não duplicar a lista aqui.
+
+**Ao finalizar qualquer task**, antes de dar por concluída:
+1. Atualizar `docs/PENDENCIAS.md`: mover o item resolvido para "Resolvido" com data e PR (`repo#N`), ou ajustar o status (⬜ aberto · 🔍 a confirmar · ✅ resolvido).
+2. Registrar qualquer pendência nova descoberta no caminho, na seção certa.
+3. Atualizar a linha "Última atualização" no topo do arquivo.
+4. Se a task mexeu nos dois repos, atualizar o doc uma única vez, no repo do app (`docs/` fica aqui), e commitar junto do PR da task.
+
+Não marcar como resolvido o que não foi verificado: se depende de teste em aparelho ou de ação do usuário (painéis, chaves), deixar 🔍 ou ⬜ e dizer isso na resposta.
 
 ## Convenções
 
