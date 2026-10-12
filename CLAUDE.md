@@ -75,7 +75,7 @@ Conta e extras: `AuthActivity`, `PerfilActivity` (CPF/CNPJ Mod 11), `PlanosActiv
 
 ## Docs (`docs/`)
 
-Úteis: `OPS_ASAAS_PRODUCAO.md` (cutover sandbox→prod), `OPS_WEBHOOK_ASAAS.md`, `PLANO_MIGRACAO_ASAAS.md`, `ASAAS_API.md`, `CASOS_DE_USO.md`, `SETUP_CI_CD.md`, **`PENDENCIAS.md`** (documento vivo, ver acima).
+Úteis: `OPS_ASAAS_PRODUCAO.md` (cutover sandbox→prod), `OPS_WEBHOOK_ASAAS.md`, `PLANO_MIGRACAO_ASAAS.md`, `ASAAS_API.md`, `CASOS_DE_USO.md`, `SETUP_CI_CD.md`, **`PENDENCIAS.md`** (documento vivo, ver acima), **`PROXIMOS_PASSOS.md`** (ordem de execução rumo à produção; marcar o passo concluído junto com o `PENDENCIAS.md`).
 **Obsoletos** (ainda falam de AbacatePay): `*ABACATE*`, `OPS_E2E_TEST.md`, `backend/README.md`.
 
 ## Pendências — documento vivo (obrigatório)
