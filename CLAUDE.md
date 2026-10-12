@@ -1,117 +1,89 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Calculadora Android de distribuição de peso/lastro de tratores (Jardulli), com login, planos pagos e relatório em PDF. O backend de assinaturas (Supabase + Asaas) vive na pasta `backend/`.
 
-## Build & Test Commands
+## Dois repositórios — atenção
+
+- **Raiz** = app Android → `cheri-hub/jardulli-calculator`
+- **`backend/`** = repositório **separado** → `cheri-hub/jardulli-subscription` (está em `/backend/` no `.gitignore` do app)
+- Commit, push e PR de cada lado são feitos de dentro da respectiva pasta. Nunca commitar `backend/` pelo repo do app.
+- Fluxo usado: branch → PR → merge commit (sem squash). Commits em inglês, conventional commits (`feat`, `fix`, `docs`, `ci`, `chore`).
+
+## Comandos
 
 ```bash
-# Build debug APK
-./gradlew assembleDebug
-
-# Install on connected device
-./gradlew installDebug
-
-# Run unit tests (JVM, no device needed)
-./gradlew test
-
-# Run a single test class
+# App (raiz)
+./gradlew assembleDebug          # APK debug
+./gradlew installDebug           # instala no device
+./gradlew test                   # testes unitários (JVM)
 ./gradlew test --tests "com.example.jardullicalculadora.CalculoUtilTest"
-
-# Run instrumented tests (requires device/emulator)
-./gradlew connectedAndroidTest
-
-# Lint check
 ./gradlew lintDebug
+
+# Backend (cd backend) — precisa de Deno e Supabase CLI
+deno fmt --check supabase/functions
+deno lint supabase/functions
+deno test --allow-all supabase/functions
+supabase db push --linked
+supabase functions deploy <nome> --project-ref ljeroorpbqnlggiyyttb
 ```
 
-Reports: `app/build/reports/tests/testDebugUnitTest/` (unit), `app/build/reports/lint-results-debug.html` (lint).
+## Stack
 
-## Project Overview
+- **App:** Java 11, Android SDK 35 (min 24), AGP 8.9.3 / Gradle 8.11.1, iText 7.2.5 (PDF), OkHttp 4.12, EncryptedSharedPreferences, SQLite.
+- **Backend:** Supabase (Auth, Postgres + RLS, Edge Functions em Deno) + gateway **Asaas v3** (substituiu o AbacatePay).
 
-Agricultural Android calculator for tractor weight distribution, ballast, wheels, and PDF report generation. Includes Supabase-based auth, subscription plans, and balance history.
+## Arquitetura do app
 
-**Stack:** Java 11, Android SDK 35 (min 24), Gradle 8.9.0 Kotlin DSL, iText 7.2.5 (PDF), OkHttp 4.12.0, Supabase (Auth + REST), EncryptedSharedPreferences (AES256-GCM), SQLite.
-
-## Architecture
-
-### Calculation Flow (Activity Chain)
-
-Data flows linearly via `DadosJardulli` (Parcelable) passed through Intent extras (`"DADOS_JARDULLI"`):
+Cadeia de cálculo — um único `DadosJardulli` (Parcelable, extra `"DADOS_JARDULLI"`) é acumulado e repassado:
 
 ```
-MainActivity (hub)
-  → TratorOperacaoActivity   (série, modelo, operação, engate, peso operador)
-    → RodadosActivity         (rodados dianteiro/traseiro, eixos, grupos)
-      → LastroLiquidoActivity (lastro líquido com multiplicador %)
-        → PesoFrontalActivity (pesos frontais, traseiros, cabine)
-          → RelatorioFinalActivity (cálculos finais + PDF)
+MainActivity → TratorOperacaoActivity → RodadosActivity → LastroLiquidoActivity
+             → PesoFrontalActivity → RelatorioFinalActivity (cálculo final + PDF)
 ```
 
-Each activity accumulates data into the same `DadosJardulli` object and passes it forward. Receivers validate with `finish()` fallback if data is null.
+Conta e extras: `AuthActivity`, `PerfilActivity` (CPF/CNPJ Mod 11), `PlanosActivity`, `HistoricoActivity`, `SuporteActivity`, `AvancoRatioActivity` (patinagem).
 
-### Account & Subscription Flow
+- Sem DI. `SupabaseClient` usa callbacks (não LiveData/coroutines) → todo update de UI em `runOnUiThread()`.
+- Offline-first: balanço salvo no SQLite (`DBHelper`) e depois enviado ao Supabase.
+- `PlanoManager`: sessão + cache do plano (TTL 1h, cai para TESTDRIVE se expirar sem sync). `getBalancosMesAtual()` usa `Math.max(nuvem, local)` para impedir burla do limite.
+- `Plano`: TESTDRIVE, FLEXIVEL, PROFISSIONAL, FROTISTA. `CalculoUtil` = funções puras testáveis.
+- Lastro líquido tem 2 fórmulas (`/75*2` e `/40*2`), escolhidas por série e eixo em `usarCalculo1()`.
+- Dados de séries: só a JD 8R está no SQLite; as outras ficam em arrays paralelos em `TratorOperacaoActivity`.
 
-```
-MainActivity → AuthActivity (login/signup Supabase)
-            → PerfilActivity (nome, CPF/CNPJ Mod 11, telefone)
-            → PlanosActivity (plan selection)
-            → HistoricoActivity (saved balances via RecyclerView)
-            → SuporteActivity (email/WhatsApp)
-```
+## Regras de negócio que já deram bug (não regredir)
 
-### Key Architectural Decisions
+- `get_active_subscription()` só retorna `active`/`past_due`. `pending` **não** dá acesso.
+- `webhook-asaas` casa a assinatura por `asaas_subscription_id` → `asaas_checkout_id` (`payment.checkoutSession`) → `externalReference`. O Asaas não propaga `externalReference` do checkout para o pagamento.
+- `subscribe` **não** envia `customerData` (Asaas exige endereço completo; a página hospedada coleta).
+- Cancelar mantém acesso até `current_period_end` (`cancel_requested_at`; UI "CANCELADA — Ativa até DD/MM"). Só `pending` é cancelada na hora.
+- 1 aparelho por conta (`profiles.current_device_id`): `AuthActivity` pergunta antes de transferir o acesso. Enforcement é client-side.
+- PDF: `MediaStore.Downloads` no Android 10+; `File` + FileProvider só abaixo disso. Nomes em `res/xml/file_paths.xml` precisam ser **únicos** (nome repetido sobrescreve o root).
 
-- **No DI framework** — dependencies instantiated directly in activities
-- **Callback-based async** — `SupabaseClient` uses `SupabaseCallback` interface, not LiveData/Coroutines. All UI updates must be wrapped in `runOnUiThread()`
-- **Series data mostly hardcoded** — only JD 8R is in SQLite (`DBHelper`); the other 5 active series use parallel arrays in `TratorOperacaoActivity`. Active series index mapping: `indiceParaOriginal = {0, 1, 2, 3, 7, 8}`
-- **Offline-first with cloud sync** — balances saved locally first, then async POST to Supabase
-- **Plan cache TTL: 1 hour** — falls to TESTDRIVE if expired without sync. `getBalancosMesAtual()` uses `Math.max(cloudCount, localCount)` to prevent bypass
+## Ambiente e segredos
 
-### Two Lastro Líquido Formulas
+- `local.properties` (não versionado): `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `WHATSAPP_SUPORTE`; para release assinado, `STORE_FILE`, `STORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
+- **JDK:** CI usa 17. Localmente o JDK 25 (padrão aqui) é incompatível com o AGP; o pin do JDK 23 fica em `~/.gradle/gradle.properties` (`org.gradle.java.home`). **Nunca** pôr `org.gradle.java.home` no `gradle.properties` do projeto — quebra o CI.
+- `asaas.txt` na raiz tem chaves reais (gitignored). Não commitar, não copiar para docs. Nunca colar service-role key em arquivo versionado.
+- Tokens em EncryptedSharedPreferences (fallback para plain se o KeyStore corromper); `jardulli_plano_prefs` fora do backup. A anon key é pública — a segurança depende das RLS.
 
-- Formula 1: `(valor × multiplicador) / 75 × 2`
-- Formula 2: `(valor × multiplicador) / 40 × 2`
-- Selection depends on series AND direction (dianteiro/traseiro) — see `usarCalculo1()` in `LastroLiquidoActivity`
+## CI/CD
 
-### Key Classes
+- **App:** `.github/workflows/android.yml` → lint, testes, `assembleDebug`.
+- **Backend:** `backend/.github/workflows/` → `supabase-ci.yml` (deno fmt/lint/check/test), `supabase-deploy.yml` (`db push` + deploy das functions no push em `main`; environment `production`, secrets `SUPABASE_ACCESS_TOKEN`/`PROJECT_ID`/`DB_PASSWORD` configurados nele), `deploy.yml` (web Next.js → VPS).
+- Edge Functions: `subscribe`, `cancel-subscription`, `webhook-asaas` (`verify_jwt = false`, auth por header `asaas-access-token`), `check-expired`. Projeto Supabase: `ljeroorpbqnlggiyyttb`.
 
-| Class | Role |
-|-------|------|
-| `DadosJardulli` | Parcelable DTO accumulating all data across the flow |
-| `SupabaseClient` | Singleton OkHttp client for Supabase REST/Auth |
-| `PlanoManager` | Plan cache + session via EncryptedSharedPreferences |
-| `DBHelper` | SQLite v3 (`jardulli.db`) — tratores, rodados, histórico |
-| `CalculoUtil` | Pure calculation functions (testable, no Android deps) |
-| `DocumentValidator` | CPF/CNPJ Mod 11 validation |
-| `Plano` | Enum: TESTDRIVE, FLEXIVEL, PROFISSIONAL, FROTISTA |
-| `RelatorioFinalActivity` | Final weight calculations + iText PDF generation |
+## Docs (`docs/`)
 
-## Conventions
+Úteis: `OPS_ASAAS_PRODUCAO.md` (cutover sandbox→prod), `OPS_WEBHOOK_ASAAS.md`, `PLANO_MIGRACAO_ASAAS.md`, `ASAAS_API.md`, `CASOS_DE_USO.md`, `SETUP_CI_CD.md`, `PENDENCIAS.md` (de abr/2026).
+**Obsoletos** (ainda falam de AbacatePay): `*ABACATE*`, `OPS_E2E_TEST.md`, `backend/README.md`.
 
-- **Language:** Portuguese (BR) for UI, variables, comments, logs
-- **Layout files:** `activity_*.xml`
-- **XML IDs:** camelCase with prefixes: `btn`, `spinner`, `text`/`txt`, `edit`
-- **All activities:** portrait-locked
-- **Data passing:** `Intent.putExtra("DADOS_JARDULLI", dados)` / `getParcelableExtra("DADOS_JARDULLI")`
+## Falta para produção (snapshot de 02/ago/2026 — conferir)
 
-## Configuration
+- Asaas ainda em sandbox → executar `docs/OPS_ASAAS_PRODUCAO.md`.
+- Rotacionar a service-role key que já vazou em docs antigos (hoje redigida no repo).
+- Keystore de release + ficha da Play Store; release com `isMinifyEnabled = false`, `versionCode = 1`.
+- Environment `production` do repo do backend sem *required reviewers*.
 
-Supabase credentials go in `local.properties` (not committed):
+## Convenções
 
-```properties
-SUPABASE_URL=https://<project>.supabase.co
-SUPABASE_ANON_KEY=<anon-public-key>
-WHATSAPP_SUPORTE=<phone-number>
-```
-
-These are injected into `BuildConfig` via `app/build.gradle.kts`. In CI, they come from GitHub Actions secrets.
-
-## Security Notes
-
-- Tokens stored in EncryptedSharedPreferences; `jardulli_plano_prefs` excluded from auto-backup and device transfer via `backup_rules.xml` / `data_extraction_rules.xml`
-- If EncryptedSharedPreferences creation fails (corrupted KeyStore), falls back to plain SharedPreferences
-- Anon key is public by design — all data safety depends on Supabase RLS policies
-
-## CI
-
-GitHub Actions (`.github/workflows/android.yml`): lint → unit tests → assemble debug APK. Uses JDK 17 in CI (local dev uses JDK 23+).
+PT-BR em UI, variáveis, comentários e logs. Layouts `activity_*.xml`; IDs em camelCase com prefixo (`btn`, `txt`, `edit`, `spinner`). Activities travadas em portrait.
