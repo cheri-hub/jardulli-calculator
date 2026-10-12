@@ -13,8 +13,9 @@ Quem: **U** = usuário (painéis, chaves, aparelho) · **C** = Claude (código, 
 | 1 | Recuperação de senha + e-mail transacional | sim |
 | 2 | Teste em aparelho real | sim |
 | 3 | Segurança | sim (P2) |
-| 4 | Release assinado e Play Store | sim |
-| 5 | Pós-lançamento | não |
+| 4 | Páginas web em produção | sim |
+| 5 | Release assinado e Play Store | sim |
+| 6 | Pós-lançamento | não |
 
 ---
 
@@ -43,13 +44,13 @@ Hoje **não existe "esqueci minha senha"**: o `SupabaseClient` só chama `signup
 **Fluxo por código de 6 dígitos (tudo dentro do app, sem deep link):**
 
 1. `AuthActivity`: link **"Esqueci minha senha"** → pede o e-mail → `POST /auth/v1/recover`.
-2. O Supabase envia um e-mail com o código. **U:** em *Authentication → Email Templates → Reset Password*, trocar o link por `{{ .Token }}`.
+2. O Supabase envia um e-mail com o código. **U:** em *Authentication → Email Templates → Reset Password*, trocar o link por `{{ .Token }}` (template pronto em [`email-templates/redefinir-senha.html`](email-templates/redefinir-senha.html)).
 3. App pede **código + nova senha** → `POST /auth/v1/verify` (`type: recovery`, e-mail + código) → recebe a sessão → `PUT /auth/v1/user` com a nova senha.
 4. Salvar a sessão (`PlanoManager.salvarSessao`) e seguir o fluxo normal de login, **incluindo a pergunta de transferência de aparelho**.
 
 **C — a implementar:** 3 métodos no `SupabaseClient` (`recoverPassword`, `verifyRecovery`, `updatePassword`), UI na `AuthActivity` (ou activity própria), validações (mínimo 6 caracteres, como no cadastro), testes das partes puras.
 **Cuidados:** mensagem neutra no passo 1 (não revelar se o e-mail existe); tratar código expirado/inválido; limite de tentativas do Supabase.
-*Opcional:* "Alterar senha" dentro do Perfil.
+*Opcional:* "Alterar senha" dentro do Perfil. **O site web também não tem recuperação de senha** (ver Fase 4).
 
 **SMTP próprio (U) — P11:** o e-mail padrão do Supabase tem limite baixo de envios por hora e é só para teste. Ele também envia a **confirmação de cadastro** (o app já mostra "Verifique seu email"). Configurar em *Authentication → SMTP Settings* antes do lançamento e testar cadastro e recuperação com um e-mail real.
 
@@ -78,18 +79,46 @@ Anotar o que falhar; **C** corrige e atualiza o `PENDENCIAS.md`.
 
 ---
 
-## Fase 4 — Release e Play Store · U+C
+## Fase 4 — Páginas web em produção (P12 e P13) · U+C
+
+**Estado hoje (verificado em 12/out):** site Next.js 16 (`backend/apps/web`) no ar em `https://jd-sub.cherihub.cloud` (VPS, nginx + systemd; o `deploy.yml` publica a cada push em `apps/web` na `main`, **sem ambiente de homologação**). Rotas: `/`, `/auth`, `/app`, `/app/profile`, `/completion`, `/return`, `/api/health`. O painel `/app` permite **cancelar assinatura** (chama `cancel-subscription` do navegador). `/completion` e `/return` são os destinos de redirecionamento do checkout do Asaas (`APP_COMPLETION_URL` / `APP_RETURN_URL`). `/privacidade` e `/termos` dão **404**; não há recuperação de senha. `supabase/test-app/` são páginas HTML de teste de desenvolvimento.
+
+**Ordem decidida:** primeiro o **conteúdo** (4A), no endereço atual; depois o **domínio final** (4B).
+
+### 4A — Conteúdo (primeiro) · P12
+
+1. **Definir o conteúdo** (U): textos da home, de `/auth`, do painel `/app`, de `/completion` e `/return`, dados de contato/suporte (alinhados ao `SuporteActivity` do app), e planos e preços **iguais aos do app e do banco**. Sem esse conteúdo definido, o resto não fecha.
+2. **Páginas públicas `/privacidade` e `/termos`** (C + U): a Play Store exige uma URL de política de privacidade. O app coleta e-mail, CPF/CNPJ e telefone (LGPD: finalidade, retenção, como pedir exclusão). O texto jurídico é decisão sua.
+3. **Recuperação de senha no site** (C): mesmo fluxo da Fase 1 (o site também não tem).
+4. **Revisão e fluxo ponta a ponta** (U): textos de `not-found`/`error`, e o caminho assinar no app → checkout → `/completion` → app mostra o plano; voltar/expirar → `/return`; cancelar pelo painel web.
+5. **CORS** (C): o secret `ALLOWED_ORIGINS` **não existe**, então as Edge Functions aceitam `*`. Definir o endereço atual do site agora e trocar na 4B. `_shared/cors.ts` só usa o **primeiro** item da lista; para mais de uma origem é preciso ajustar o código.
+6. **Operação** (C): o deploy faz `rsync --delete` e não guarda a versão anterior; criar um jeito de voltar atrás e considerar aprovação no deploy da web, como no do Supabase.
+7. **`supabase/test-app/`:** garantir que nunca seja publicado (o `env.js` local tem chaves).
+
+### 4B — Domínio final (depois do conteúdo) · P13
+
+Hoje é um subdomínio de `cherihub.cloud`. Ao trocar:
+
+1. **DNS** apontando para a VPS, `server_name` e **certificado TLS** no nginx (e renovação automática).
+2. **`/etc/jardulli/jardulli-web.env` na VPS** (U): `NEXT_PUBLIC_SITE_URL` com o domínio novo, `NEXT_PUBLIC_SUPABASE_URL` do projeto de produção e a **anon key** (nunca a service-role). As `NEXT_PUBLIC_*` entram no build, então precisa de **novo build**.
+3. **Secrets do Supabase:** atualizar `APP_COMPLETION_URL` e `APP_RETURN_URL` para `<domínio>/completion` e `/return` (os valores atuais não aparecem no CLI; conferir) e verificar se o Asaas de produção aceita o domínio nos callbacks do checkout.
+4. **`ALLOWED_ORIGINS`** com o domínio novo; atualizar também o link da política de privacidade na Play Store.
+5. Manter o endereço antigo redirecionando por um tempo (`301`), para não quebrar links já enviados.
+
+---
+
+## Fase 5 — Release e Play Store · U+C
 
 1. **Keystore (P4):** guardar uma **cópia fora do computador** (keystore + senhas). Perder o keystore impede atualizar o app. Considerar ativar o **Play App Signing** na Play Console.
 2. **Versão:** definir `versionCode`/`versionName` (hoje 1 / "1.0"); incrementar a cada envio.
 3. **Minify:** decidir `isMinifyEnabled`. Se ligar, **C** valida o build release (iText e OkHttp costumam pedir regras no `proguard-rules.pro`) e **U** testa o APK de ponta a ponta.
 4. **Gerar o AAB** (a Play Store exige AAB em app novo): `./gradlew bundleRelease`.
-5. **Ficha da loja (P5):** política de privacidade (o app coleta **e-mail, CPF/CNPJ e telefone** — descrever o uso e a exclusão de dados), seção *Segurança dos dados* da Play Console, screenshots, classificação etária.
+5. **Ficha da loja (P5):** política de privacidade (a URL pública vem da Fase 4A; o app coleta **e-mail, CPF/CNPJ e telefone** — descrever o uso e a exclusão de dados), seção *Segurança dos dados* da Play Console, screenshots, classificação etária.
 6. Publicar primeiro numa **trilha de teste interno**, instalar pela loja e repetir o smoke test da Fase 2 antes de ir para produção.
 
 ---
 
-## Fase 5 — Pós-lançamento
+## Fase 6 — Pós-lançamento
 
 - Acompanhar nos primeiros dias: `supabase functions logs webhook-asaas --project-ref ljeroorpbqnlggiyyttb --tail`, `webhook_events` com `processed = false`, aba de logs do Asaas.
 - Rollback e contingência: [`OPS_ASAAS_PRODUCAO.md`](OPS_ASAAS_PRODUCAO.md) §8.
