@@ -63,6 +63,7 @@ Conta e extras: `AuthActivity`, `PerfilActivity` (CPF/CNPJ Mod 11), `PlanosActiv
 
 - `local.properties` (não versionado): `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `WHATSAPP_SUPORTE`; para release assinado, `STORE_FILE`, `STORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
 - **JDK:** CI usa 17. Localmente o JDK 25 (padrão aqui) é incompatível com o AGP; o pin do JDK 23 fica em `~/.gradle/gradle.properties` (`org.gradle.java.home`). **Nunca** pôr `org.gradle.java.home` no `gradle.properties` do projeto — quebra o CI.
+- **Supabase CLI:** o login é global e pode estar em outra conta (já aconteceu: dava 403 neste projeto). Antes de `db push`, `secrets` ou `functions`, rodar `supabase projects list` e conferir que `Jardulli Subscriptions` (`ljeroorpbqnlggiyyttb`) aparece. Para não mexer no login dos outros projetos, usar `$env:SUPABASE_ACCESS_TOKEN` só naquela janela do terminal. Sempre passar `--project-ref ljeroorpbqnlggiyyttb` explícito.
 - `asaas.txt` na raiz tem chaves reais (gitignored). Não commitar, não copiar para docs. Nunca colar service-role key em arquivo versionado.
 - Tokens em EncryptedSharedPreferences (fallback para plain se o KeyStore corromper); `jardulli_plano_prefs` fora do backup. A anon key é pública — a segurança depende das RLS.
 
