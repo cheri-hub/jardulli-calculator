@@ -44,7 +44,7 @@ Hoje **não existe "esqueci minha senha"**: o `SupabaseClient` só chama `signup
 **Fluxo por código de 6 dígitos (tudo dentro do app, sem deep link):**
 
 1. `AuthActivity`: link **"Esqueci minha senha"** → pede o e-mail → `POST /auth/v1/recover`.
-2. O Supabase envia um e-mail com o código. **U:** em *Authentication → Email Templates → Reset Password*, trocar o link por `{{ .Token }}`.
+2. O Supabase envia um e-mail com o código. **U:** em *Authentication → Email Templates → Reset Password*, trocar o link por `{{ .Token }}` (template pronto em [`email-templates/redefinir-senha.html`](email-templates/redefinir-senha.html)).
 3. App pede **código + nova senha** → `POST /auth/v1/verify` (`type: recovery`, e-mail + código) → recebe a sessão → `PUT /auth/v1/user` com a nova senha.
 4. Salvar a sessão (`PlanoManager.salvarSessao`) e seguir o fluxo normal de login, **incluindo a pergunta de transferência de aparelho**.
 
