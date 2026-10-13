@@ -401,6 +401,7 @@ public class RelatorioFinalActivity extends AppCompatActivity {
                 document.add(legendaFallback);
             }
 
+            PdfRodape.adicionar(document, pdfDoc, getString(R.string.rodape_powered_by));
             document.close();
             document = null;
 
