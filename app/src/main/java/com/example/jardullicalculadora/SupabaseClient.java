@@ -302,6 +302,26 @@ public class SupabaseClient {
     }
 
     /**
+     * Exclui definitivamente a conta do usuário logado (cancela a assinatura no
+     * gateway, apaga perfil, histórico e login). O servidor só apaga a conta do
+     * token e exige {@code confirm: true}.
+     */
+    public void deleteAccount(SupabaseCallback callback) {
+        if (!isLoggedIn()) {
+            callback.onError("Usuário não autenticado");
+            return;
+        }
+        JSONObject body = new JSONObject();
+        try {
+            body.put("confirm", true);
+        } catch (JSONException e) {
+            callback.onError("Erro ao montar requisição: " + e.getMessage());
+            return;
+        }
+        callEdgeFunction("delete-account", body, callback);
+    }
+
+    /**
      * Conta balanços do usuário no mês corrente via RPC server-side.
      * Resposta vem como número primitivo embrulhado em {@code {"data": N}}
      * (ver {@link #executeAsyncInternal}). Use isso como fonte de verdade

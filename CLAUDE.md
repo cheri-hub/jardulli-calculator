@@ -71,11 +71,11 @@ Conta e extras: `AuthActivity`, `PerfilActivity` (CPF/CNPJ Mod 11), `PlanosActiv
 
 - **App:** `.github/workflows/android.yml` → lint, testes, `assembleDebug`.
 - **Backend:** `backend/.github/workflows/` → `supabase-ci.yml` (deno fmt/lint/check/test), `supabase-deploy.yml` (`db push` + deploy das functions no push em `main`; environment `production`, secrets `SUPABASE_ACCESS_TOKEN`/`PROJECT_ID`/`DB_PASSWORD` configurados nele), `deploy.yml` (web Next.js → VPS).
-- Edge Functions: `subscribe`, `cancel-subscription`, `webhook-asaas` (`verify_jwt = false`, auth por header `asaas-access-token`), `check-expired`. Projeto Supabase: `ljeroorpbqnlggiyyttb`.
+- Edge Functions: `subscribe`, `cancel-subscription`, `webhook-asaas` (`verify_jwt = false`, auth por header `asaas-access-token`), `check-expired`, `delete-account` (exclusão de conta; cancela no Asaas antes de apagar, ver `docs/OPS_EXCLUSAO_CONTA.md`). Projeto Supabase: `ljeroorpbqnlggiyyttb`.
 
 ## Docs (`docs/`)
 
-Úteis: `OPS_ASAAS_PRODUCAO.md` (cutover sandbox→prod), `OPS_WEBHOOK_ASAAS.md`, `PLANO_MIGRACAO_ASAAS.md`, `ASAAS_API.md`, `CASOS_DE_USO.md`, `SETUP_CI_CD.md`, **`PENDENCIAS.md`** (documento vivo, ver acima), **`PROXIMOS_PASSOS.md`** (ordem de execução rumo à produção; marcar o passo concluído junto com o `PENDENCIAS.md`).
+Úteis: `OPS_ASAAS_PRODUCAO.md` (cutover sandbox→prod), `OPS_WEBHOOK_ASAAS.md`, `OPS_EXCLUSAO_CONTA.md`, `PLANO_MIGRACAO_ASAAS.md`, `ASAAS_API.md`, `CASOS_DE_USO.md`, `SETUP_CI_CD.md`, **`PENDENCIAS.md`** (documento vivo, ver acima), **`PROXIMOS_PASSOS.md`** (ordem de execução rumo à produção; marcar o passo concluído junto com o `PENDENCIAS.md`).
 **Obsoletos** (ainda falam de AbacatePay): `*ABACATE*`, `OPS_E2E_TEST.md`, `backend/README.md`.
 
 ## Pendências — documento vivo (obrigatório)
