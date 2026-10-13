@@ -48,7 +48,7 @@ Hoje **não existe "esqueci minha senha"**: o `SupabaseClient` só chama `signup
 3. App pede **código + nova senha** → `POST /auth/v1/verify` (`type: recovery`, e-mail + código) → recebe a sessão → `PUT /auth/v1/user` com a nova senha.
 4. **Como foi implementado:** a sessão devolvida pelo `verify` fica só em memória (nunca persistida) e é descartada logo após trocar a senha; o app volta ao login com o e-mail preenchido e o usuário entra com a nova senha (assim a pergunta de transferência de aparelho segue o fluxo normal de login).
 
-**Status:** código pronto na branch `feat/recuperar-senha` (testes unitários + lint verdes). **Falta (U):** colar o template Reset Password no Supabase e testar com e-mail real.
+**Status:** código mergeado (repo#11) e template Reset Password colado no Supabase. **Falta (U):** testar com e-mail real.
 
 **C — a implementar:** 3 métodos no `SupabaseClient` (`recoverPassword`, `verifyRecovery`, `updatePassword`), UI na `AuthActivity` (ou activity própria), validações (mínimo 6 caracteres, como no cadastro), testes das partes puras.
 **Cuidados:** mensagem neutra no passo 1 (não revelar se o e-mail existe); tratar código expirado/inválido; limite de tentativas do Supabase.
