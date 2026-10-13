@@ -131,6 +131,18 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
+        <!-- Excluir conta -->
+        <Button
+            android:id="@+id/btnExcluirConta"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:text="Excluir conta"
+            android:textAllCaps="false"
+            android:textColor="#C62828"
+            android:textSize="14sp" />
+
         <!-- Loading -->
         <ProgressBar
             android:id="@+id/progressPerfil"

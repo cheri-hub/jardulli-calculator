@@ -1,8 +1,14 @@
 package com.example.jardullicalculadora;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -24,6 +30,8 @@ public class PerfilActivity extends AppCompatActivity {
     private TextInputEditText editTelefone;
     private ProgressBar progressPerfil;
     private Button btnSalvar;
+    private Button btnSair;
+    private Button btnExcluirConta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +49,11 @@ public class PerfilActivity extends AppCompatActivity {
         Button btnVoltar = findViewById(R.id.btnVoltar);
         btnVoltar.setOnClickListener(v -> finish());
 
-        Button btnSair = findViewById(R.id.btnSair);
+        btnSair = findViewById(R.id.btnSair);
         btnSair.setOnClickListener(v -> confirmarLogout());
+
+        btnExcluirConta = findViewById(R.id.btnExcluirConta);
+        btnExcluirConta.setOnClickListener(v -> confirmarExclusao());
 
         if (getIntent().getBooleanExtra(EXTRA_REQUIRED_FOR_SUBSCRIPTION, false)) {
             Toast.makeText(this,
@@ -155,8 +166,74 @@ public class PerfilActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void confirmarExclusao() {
+        EditText campo = new EditText(this);
+        campo.setHint("Digite " + ExclusaoConta.PALAVRA_DE_CONFIRMACAO);
+        campo.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        FrameLayout container = new FrameLayout(this);
+        int margem = (int) (20 * getResources().getDisplayMetrics().density);
+        container.setPadding(margem, 0, margem, 0);
+        container.addView(campo);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Excluir conta")
+                .setMessage("Isso apaga definitivamente seu login, seu perfil, seu histórico na nuvem "
+                        + "e sua assinatura. Não dá para desfazer.\n\n"
+                        + "Se você tem assinatura ativa, ela será cancelada agora e o acesso ao plano "
+                        + "termina na hora, sem reembolso proporcional. Para pedir o reembolso dos "
+                        + "7 dias, fale com o suporte antes de excluir.\n\n"
+                        + "Os balanços salvos neste aparelho não são apagados.\n\n"
+                        + "Para confirmar, digite " + ExclusaoConta.PALAVRA_DE_CONFIRMACAO + ":")
+                .setView(container)
+                .setPositiveButton("Excluir definitivamente", (d, w) -> excluirConta())
+                .setNegativeButton("Cancelar", null)
+                .create();
+
+        dialog.setOnShowListener(d -> {
+            Button confirmar = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            confirmar.setEnabled(false);
+            confirmar.setTextColor(0xFFC62828);
+            campo.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
+                @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
+                @Override public void afterTextChanged(Editable s) {
+                    confirmar.setEnabled(ExclusaoConta.confirmacaoValida(s.toString()));
+                }
+            });
+        });
+        dialog.show();
+    }
+
+    private void excluirConta() {
+        setLoading(true);
+        SupabaseClient.getInstance().deleteAccount(new SupabaseClient.SupabaseCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                runOnUiThread(() -> {
+                    // A conta já não existe no servidor: descarta a sessão e o plano em cache.
+                    new PlanoManager(PerfilActivity.this).forcarLogout();
+                    Toast.makeText(PerfilActivity.this, "Conta excluída.", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(PerfilActivity.this, MainActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                    finish();
+                });
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                runOnUiThread(() -> {
+                    setLoading(false);
+                    Toast.makeText(PerfilActivity.this,
+                            ExclusaoConta.mensagemDeErro(errorMessage), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
     private void setLoading(boolean loading) {
         progressPerfil.setVisibility(loading ? View.VISIBLE : View.GONE);
+        btnSair.setEnabled(!loading);
+        btnExcluirConta.setEnabled(!loading);
         btnSalvar.setEnabled(!loading);
         editNome.setEnabled(!loading);
         editCpfCnpj.setEnabled(!loading);
