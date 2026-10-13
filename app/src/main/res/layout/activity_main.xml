@@ -362,5 +362,15 @@
                 android:textColor="#BDBDBD" />
         </LinearLayout>
 
+        <com.example.jardullicalculadora.RodapeAgrosinergia
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:text="@string/rodape_powered_by"
+            android:textColor="#757575"
+            android:textSize="12sp" />
+
     </LinearLayout>
 </ScrollView>

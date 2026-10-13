@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">JardulliCalculadora</string>
+    <string name="rodape_powered_by">Powered by Agrosinergia</string>
 </resources>
