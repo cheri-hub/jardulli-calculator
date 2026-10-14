@@ -48,13 +48,13 @@ Hoje **não existe "esqueci minha senha"**: o `SupabaseClient` só chama `signup
 3. App pede **código + nova senha** → `POST /auth/v1/verify` (`type: recovery`, e-mail + código) → recebe a sessão → `PUT /auth/v1/user` com a nova senha.
 4. **Como foi implementado:** a sessão devolvida pelo `verify` fica só em memória (nunca persistida) e é descartada logo após trocar a senha; o app volta ao login com o e-mail preenchido e o usuário entra com a nova senha (assim a pergunta de transferência de aparelho segue o fluxo normal de login).
 
-**Status:** código mergeado (repo#11) e template Reset Password colado no Supabase. **Falta (U):** testar com e-mail real.
+**Status: concluído em 14/out** — código mergeado (repo#11), template colado no Supabase e fluxo testado com e-mail real.
 
 **C — a implementar:** 3 métodos no `SupabaseClient` (`recoverPassword`, `verifyRecovery`, `updatePassword`), UI na `AuthActivity` (ou activity própria), validações (mínimo 6 caracteres, como no cadastro), testes das partes puras.
 **Cuidados:** mensagem neutra no passo 1 (não revelar se o e-mail existe); tratar código expirado/inválido; limite de tentativas do Supabase.
 *Opcional:* "Alterar senha" dentro do Perfil. **O site web também não tem recuperação de senha** (ver Fase 4).
 
-**SMTP próprio (U) — P11:** o e-mail padrão do Supabase tem limite baixo de envios por hora e é só para teste. Ele também envia a **confirmação de cadastro** (o app já mostra "Verifique seu email"). Configurar em *Authentication → SMTP Settings* antes do lançamento e testar cadastro e recuperação com um e-mail real.
+**SMTP próprio (U) — P11:** o e-mail padrão do Supabase tem limite baixo de envios por hora e é só para teste. Ele também envia a **confirmação de cadastro** (o app já mostra "Verifique seu email"). Configurar em *Authentication → SMTP Settings* antes do lançamento e testar cadastro e recuperação com um e-mail real. **Concluído em 14/out:** Resend como SMTP do Supabase, DNS na KingHost, e-mails testados.
 
 ---
 
