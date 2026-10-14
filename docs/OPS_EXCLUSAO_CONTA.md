@@ -1,6 +1,6 @@
 # Exclusão de conta — como atender
 
-Há dois caminhos. Os dois estão descritos para o usuário em `https://jd-sub.cherihub.cloud/excluir-conta` (essa é a URL que a Play Console pede).
+Há dois caminhos. Os dois estão descritos para o usuário em `https://jardulli.agrosinergia.com.br/excluir-conta` (essa é a URL que a Play Console pede).
 
 ## 1. Pelo app (automático)
 

@@ -83,7 +83,7 @@ Anotar o que falhar; **C** corrige e atualiza o `PENDENCIAS.md`.
 
 ## Fase 4 — Páginas web em produção (P12 e P13) · U+C
 
-**Estado hoje (verificado em 12/out):** site Next.js 16 (`backend/apps/web`) no ar em `https://jd-sub.cherihub.cloud` (VPS, nginx + systemd; o `deploy.yml` publica a cada push em `apps/web` na `main`, **sem ambiente de homologação**). Rotas: `/`, `/auth`, `/app`, `/app/profile`, `/completion`, `/return`, `/api/health`. O painel `/app` permite **cancelar assinatura** (chama `cancel-subscription` do navegador). `/completion` e `/return` são os destinos de redirecionamento do checkout do Asaas (`APP_COMPLETION_URL` / `APP_RETURN_URL`). `/privacidade` e `/termos` dão **404**; não há recuperação de senha. `supabase/test-app/` são páginas HTML de teste de desenvolvimento.
+**Estado hoje (verificado em 12/out):** site Next.js 16 (`backend/apps/web`) no ar em `https://jardulli.agrosinergia.com.br` (VPS, nginx + systemd; o `deploy.yml` publica a cada push em `apps/web` na `main`, **sem ambiente de homologação**). Rotas: `/`, `/auth`, `/app`, `/app/profile`, `/completion`, `/return`, `/api/health`. O painel `/app` permite **cancelar assinatura** (chama `cancel-subscription` do navegador). `/completion` e `/return` são os destinos de redirecionamento do checkout do Asaas (`APP_COMPLETION_URL` / `APP_RETURN_URL`). `/privacidade` e `/termos` dão **404**; não há recuperação de senha. `supabase/test-app/` são páginas HTML de teste de desenvolvimento.
 
 **Ordem decidida:** primeiro o **conteúdo** (4A), no endereço atual; depois o **domínio final** (4B).
 
@@ -93,7 +93,7 @@ Anotar o que falhar; **C** corrige e atualiza o `PENDENCIAS.md`.
 2. **Páginas públicas `/privacidade` e `/termos`** (C + U): a Play Store exige uma URL de política de privacidade. O app coleta e-mail, CPF/CNPJ e telefone (LGPD: finalidade, retenção, como pedir exclusão). O texto jurídico é decisão sua.
 3. **Recuperação de senha no site:** decidido em 14/out que fica **só no app** (Fase 1). Não será feita no site.
 4. **Revisão e fluxo ponta a ponta** (U): textos de `not-found`/`error`, e o caminho assinar no app → checkout → `/completion` → app mostra o plano; voltar/expirar → `/return`; cancelar pelo painel web.
-5. **CORS** (C) — **feito em 14/out (jardulli-subscription#7):** `ALLOWED_ORIGINS=https://jd-sub.cherihub.cloud` definido no Supabase; `_shared/cors.ts` normaliza a origem (barra final, lista) e usa a primeira. Trocar na 4B.
+5. **CORS** (C) — **feito em 14/out (jardulli-subscription#7):** `ALLOWED_ORIGINS=https://jardulli.agrosinergia.com.br` definido no Supabase; `_shared/cors.ts` normaliza a origem (barra final, lista) e usa a primeira. Trocar na 4B.
 6. **Operação** (C) — **feito em 14/out (jardulli-subscription#8):** o `setup.sh` guarda o build anterior e reverte se o health-check falhar; o deploy manual aceita `ref` para voltar a uma versão antiga; CI da web (`web-ci.yml`). Opcional: exigir aprovação em Settings → Environments → `vps-production`.
 7. **`supabase/test-app/`** — **feito em 14/out (jardulli-subscription#8):** o `repo-guards` falha o CI se `env.js` com chaves ou `test-app/` forem versionados.
 
