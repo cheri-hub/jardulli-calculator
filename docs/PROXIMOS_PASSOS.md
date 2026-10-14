@@ -91,11 +91,11 @@ Anotar o que falhar; **C** corrige e atualiza o `PENDENCIAS.md`.
 
 1. **Definir o conteúdo** (U) — **feito em 14/out (jardulli-subscription#6)**: textos da home, de `/auth`, do painel `/app`, de `/completion` e `/return`, dados de contato/suporte (alinhados ao `SuporteActivity` do app), e planos e preços **iguais aos do app e do banco**. Sem esse conteúdo definido, o resto não fecha.
 2. **Páginas públicas `/privacidade` e `/termos`** (C + U): a Play Store exige uma URL de política de privacidade. O app coleta e-mail, CPF/CNPJ e telefone (LGPD: finalidade, retenção, como pedir exclusão). O texto jurídico é decisão sua.
-3. **Recuperação de senha no site** (C): mesmo fluxo da Fase 1 (o site também não tem).
+3. **Recuperação de senha no site:** decidido em 14/out que fica **só no app** (Fase 1). Não será feita no site.
 4. **Revisão e fluxo ponta a ponta** (U): textos de `not-found`/`error`, e o caminho assinar no app → checkout → `/completion` → app mostra o plano; voltar/expirar → `/return`; cancelar pelo painel web.
-5. **CORS** (C): o secret `ALLOWED_ORIGINS` **não existe**, então as Edge Functions aceitam `*`. Definir o endereço atual do site agora e trocar na 4B. `_shared/cors.ts` só usa o **primeiro** item da lista; para mais de uma origem é preciso ajustar o código.
-6. **Operação** (C): o deploy faz `rsync --delete` e não guarda a versão anterior; criar um jeito de voltar atrás e considerar aprovação no deploy da web, como no do Supabase.
-7. **`supabase/test-app/`:** garantir que nunca seja publicado (o `env.js` local tem chaves).
+5. **CORS** (C) — **feito em 14/out (jardulli-subscription#7):** `ALLOWED_ORIGINS=https://jd-sub.cherihub.cloud` definido no Supabase; `_shared/cors.ts` normaliza a origem (barra final, lista) e usa a primeira. Trocar na 4B.
+6. **Operação** (C) — **feito em 14/out (jardulli-subscription#8):** o `setup.sh` guarda o build anterior e reverte se o health-check falhar; o deploy manual aceita `ref` para voltar a uma versão antiga; CI da web (`web-ci.yml`). Opcional: exigir aprovação em Settings → Environments → `vps-production`.
+7. **`supabase/test-app/`** — **feito em 14/out (jardulli-subscription#8):** o `repo-guards` falha o CI se `env.js` com chaves ou `test-app/` forem versionados.
 
 ### 4B — Domínio final (depois do conteúdo) · P13
 
