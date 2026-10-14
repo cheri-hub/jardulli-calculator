@@ -89,7 +89,7 @@ Anotar o que falhar; **C** corrige e atualiza o `PENDENCIAS.md`.
 
 ### 4A — Conteúdo (primeiro) · P12
 
-1. **Definir o conteúdo** (U): textos da home, de `/auth`, do painel `/app`, de `/completion` e `/return`, dados de contato/suporte (alinhados ao `SuporteActivity` do app), e planos e preços **iguais aos do app e do banco**. Sem esse conteúdo definido, o resto não fecha.
+1. **Definir o conteúdo** (U) — **feito em 14/out (jardulli-subscription#6)**: textos da home, de `/auth`, do painel `/app`, de `/completion` e `/return`, dados de contato/suporte (alinhados ao `SuporteActivity` do app), e planos e preços **iguais aos do app e do banco**. Sem esse conteúdo definido, o resto não fecha.
 2. **Páginas públicas `/privacidade` e `/termos`** (C + U): a Play Store exige uma URL de política de privacidade. O app coleta e-mail, CPF/CNPJ e telefone (LGPD: finalidade, retenção, como pedir exclusão). O texto jurídico é decisão sua.
 3. **Recuperação de senha no site** (C): mesmo fluxo da Fase 1 (o site também não tem).
 4. **Revisão e fluxo ponta a ponta** (U): textos de `not-found`/`error`, e o caminho assinar no app → checkout → `/completion` → app mostra o plano; voltar/expirar → `/return`; cancelar pelo painel web.
