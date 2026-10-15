@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Deve ser atualizado a cada task concluída (regra no `CLAUDE.md`):
 > mover o item para "Resolvido" com data e PR, e registrar o que for descoberto no caminho.
-> **Última atualização:** 14/out/2026 · ordem de execução em [`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md)
+> **Última atualização:** 15/out/2026 · ordem de execução em [`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md)
 
 Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 
@@ -15,7 +15,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 | P1 | **Cutover do Asaas sandbox → produção** (chave `$aact_prod_`, `ASAAS_BASE_URL`, novo `ASAAS_WEBHOOK_TOKEN`, webhook na conta de produção, smoke test com cartão real). Runbook: [`OPS_ASAAS_PRODUCAO.md`](OPS_ASAAS_PRODUCAO.md) | 🔍 em 12/out o usuário testou a assinatura ponta a ponta e o plano ativou. Usuário confirmou (12/out) que o domínio do checkout é o de produção. **Falta:** **cancelar/estornar** a assinatura de teste (é recorrente: cobra de novo no próximo ciclo) | Usuário |
 | P2 | **Rotacionar a service-role key** que vazou em texto puro em docs antigos (já redigida no repo, mas a chave segue válida até ser trocada no painel). Hoje ela também está em texto puro no `.secrets` das duas cópias do backend | ⬜ | Usuário |
 | P3 | **Testar em aparelho real** o que foi entregue sem teste manual: PDF no Android 10+ (gera e abre), transferência de dispositivo (Transferir / Cancelar), badge "CANCELADA — Ativa até DD/MM" após cancelar plano pago, rodapé "Powered by Agrosinergia" (P14) | ⬜ | Usuário |
-| P4 | **Release assinado**: keystore (`STORE_FILE`, `STORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` no `local.properties`), `versionCode`/`versionName` (hoje 1 / "1.0"), decidir `isMinifyEnabled` (hoje `false`; se ligar, o iText provavelmente precisa de regras no `proguard-rules.pro`) | ⬜ | Usuário + Claude |
+| P4 | **Release assinado.** **Feito (15/out):** `applicationId` trocado de `com.example.jardullicalculadora` (a Play Store recusa `com.example`) para **`br.com.agrosinergia.jardulli`**, definitivo depois de publicado; o `namespace` Java segue `com.example.jardullicalculadora` (não afeta a loja); authority do FileProvider no manifesto agora é `${applicationId}.fileprovider`; `./gradlew bundleRelease` gera o AAB assinado com o `app/jardulli.jks` (fora do git); criado `local.properties.example`. **Falta (usuário):** (a) **copiar `app/jardulli.jks` e as senhas para fora do computador** (perder o keystore impede atualizar o app); (b) instalar o app com o pacote novo (é outro app para o Android: desinstale o antigo) e repetir o roteiro do P3; (c) decidir `versionName` (hoje "1.0") e `isMinifyEnabled` (hoje `false`; se ligar, o iText provavelmente precisa de regras no `proguard-rules.pro`); (d) considerar o Play App Signing na Play Console | 🔍 | Usuário + Claude |
 | P5 | **Ficha da Play Store**: política de privacidade (URL: `/privacidade`, ver P12), screenshots, classificação etária, formulário de segurança dos dados; exige também a exclusão de conta (P16) | ⬜ | Usuário |
 | P6 | Environment `production` do repo do backend **sem *required reviewers***: todo push em `supabase/` na `main` faz deploy direto em produção | ⬜ opcional | Usuário |
 | P7 | Secret `SUPABASE_DB_PASSWORD` do environment `production` é de 26/abr, mas o `.secrets` foi alterado em 02/ago. Se a senha do banco realmente mudou, atualizar o secret (senão o próximo deploy falha em `supabase link`) | 🔍 | Usuário |
@@ -61,7 +61,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 - ⬜ **F1 — Patinagem/Avanço:** `AvancoRatioActivity` valida `velocidadeTeorica`; conferir `velocidadeReal` e integração com o Histórico.
 - ⬜ **DT1 — `security-crypto:1.1.0-alpha06`** em produção (risco aceito; sem GA).
 - ⬜ **DT2 — Cobertura de testes:** app com 27 testes (`CalculoUtil` 15 + `DocumentValidator` 12); backend com 29 testes Deno (webhook, client, validador). Faltam: `PlanoManager.podeFazerBalanco()`, `mesclar()`, Espresso (Auth → Perfil → Balanço) e testes das functions `subscribe`/`cancel-subscription`.
-- ⬜ **DT4 — `local.properties.example`** não existe; documentar `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `WHATSAPP_SUPORTE` e as chaves de assinatura.
+- ✅ **DT4 — `local.properties.example`** criado em 15/out (Supabase, WhatsApp e chaves de assinatura).
 
 ---
 

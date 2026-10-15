@@ -1,0 +1,17 @@
+# Copie para local.properties (que NÃO é versionado) e preencha.
+# local.properties também recebe sdk.dir, gerado pelo Android Studio.
+
+# Supabase (a anon key é pública; a segurança depende das RLS)
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_ANON_KEY=<anon key>
+
+# WhatsApp de suporte, formato internacional sem '+'. Vazio oculta o botão.
+WHATSAPP_SUPORTE=5519999999999
+
+# Assinatura do release (opcional; sem isso o release sai sem assinar).
+# STORE_FILE é relativo à raiz do projeto. Guarde o .jks e as senhas fora do
+# repositório e faça cópia em outro lugar: perder o keystore impede atualizar o app.
+STORE_FILE=app/jardulli.jks
+STORE_PASSWORD=<senha do keystore>
+KEY_ALIAS=<alias>
+KEY_PASSWORD=<senha da chave>

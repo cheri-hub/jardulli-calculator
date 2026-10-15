@@ -112,7 +112,7 @@ Hoje é um subdomínio de `cherihub.cloud`. Ao trocar:
 ## Fase 5 — Release e Play Store · U+C
 
 1. **Keystore (P4):** guardar uma **cópia fora do computador** (keystore + senhas). Perder o keystore impede atualizar o app. Considerar ativar o **Play App Signing** na Play Console.
-2. **Versão:** definir `versionCode`/`versionName` (hoje 1 / "1.0"); incrementar a cada envio.
+2. **Versão:** definir `versionName` (hoje "1.0") e incrementar o `versionCode` a cada envio. O `applicationId` já foi trocado para `br.com.agrosinergia.jardulli` em 15/out (a loja recusa `com.example`).
 3. **Minify:** decidir `isMinifyEnabled`. Se ligar, **C** valida o build release (iText e OkHttp costumam pedir regras no `proguard-rules.pro`) e **U** testa o APK de ponta a ponta.
 4. **Gerar o AAB** (a Play Store exige AAB em app novo): `./gradlew bundleRelease`.
 5. **Ficha da loja (P5):** política de privacidade (a URL pública vem da Fase 4A; o app coleta **e-mail, CPF/CNPJ e telefone** — descrever o uso e a exclusão de dados), seção *Segurança dos dados* da Play Console, screenshots, classificação etária.
