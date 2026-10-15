@@ -12,7 +12,7 @@ Quem: **U** = usuário (painéis, chaves, aparelho) · **C** = Claude (código, 
 | 0 | Fechar o que já foi feito (Asaas em produção) | sim |
 | 1 | Recuperação de senha + e-mail transacional | sim |
 | 2 | Teste em aparelho real | sim |
-| 3 | Segurança | sim (P2) |
+| 3 | Segurança | sim (P2 feito; sobram P7 e P8) |
 | 4 | Páginas web em produção | sim |
 | 5 | Release assinado e Play Store | sim |
 | 6 | Pós-lançamento | não |
@@ -75,7 +75,7 @@ Anotar o que falhar; **C** corrige e atualiza o `PENDENCIAS.md`.
 
 ## Fase 3 — Segurança · U
 
-- **P2 — Rotacionar a service-role key** que vazou em docs antigos. Gerar a nova no painel do Supabase, atualizar onde é usada (`.secrets` local; as Edge Functions recebem a chave do próprio Supabase), conferir que `subscribe`/`webhook-asaas` continuam respondendo e só então revogar a antiga.
+- ~~**P2 — Rotacionar a service-role key**~~ — **feito em 15/out:** as legacy API keys foram desabilitadas no Supabase e app e site usam a publishable key.
 - **P8 — `asaas.txt`:** mover as chaves para um gerenciador de senhas e apagar o arquivo.
 - **P6 — Aprovação no deploy:** em *Settings → Environments → production*, ligar **Required reviewers** no repo do backend.
 
