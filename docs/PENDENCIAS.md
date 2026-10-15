@@ -13,7 +13,6 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 | # | Item | Status | Quem |
 |---|---|---|---|
 | P1 | **Cutover do Asaas sandbox → produção** (chave `$aact_prod_`, `ASAAS_BASE_URL`, novo `ASAAS_WEBHOOK_TOKEN`, webhook na conta de produção, smoke test com cartão real). Runbook: [`OPS_ASAAS_PRODUCAO.md`](OPS_ASAAS_PRODUCAO.md) | 🔍 em 12/out o usuário testou a assinatura ponta a ponta e o plano ativou. Usuário confirmou (12/out) que o domínio do checkout é o de produção. **Falta:** **cancelar/estornar** a assinatura de teste (é recorrente: cobra de novo no próximo ciclo) | Usuário |
-| P2 | **Rotacionar a service-role key** que vazou em texto puro em docs antigos (já redigida no repo, mas a chave segue válida até ser trocada no painel). Hoje ela também está em texto puro no `.secrets` das duas cópias do backend | ⬜ | Usuário |
 | P3 | **Testar em aparelho real** o que foi entregue sem teste manual: PDF no Android 10+ (gera e abre), transferência de dispositivo (Transferir / Cancelar), badge "CANCELADA — Ativa até DD/MM" após cancelar plano pago, rodapé "Powered by Agrosinergia" (P14) | ⬜ | Usuário |
 | P4 | **Release assinado.** **Feito (15/out):** `applicationId` trocado de `com.example.jardullicalculadora` (a Play Store recusa `com.example`) para **`br.com.agrosinergia.jardulli`**, definitivo depois de publicado; o `namespace` Java segue `com.example.jardullicalculadora` (não afeta a loja); authority do FileProvider no manifesto agora é `${applicationId}.fileprovider`; `./gradlew bundleRelease` gera o AAB assinado com o `app/jardulli.jks` (fora do git); criado `local.properties.example`. **Falta (usuário):** (a) **copiar `app/jardulli.jks` e as senhas para fora do computador** (perder o keystore impede atualizar o app); (b) instalar o app com o pacote novo (é outro app para o Android: desinstale o antigo) e repetir o roteiro do P3; (c) decidir `versionName` (hoje "1.0") e `isMinifyEnabled` (hoje `false`; se ligar, o iText provavelmente precisa de regras no `proguard-rules.pro`); (d) considerar o Play App Signing na Play Console | 🔍 | Usuário + Claude |
 | P5 | **Ficha da Play Store**: política de privacidade (URL: `/privacidade`, ver P12), screenshots, classificação etária, formulário de segurança dos dados; exige também a exclusão de conta (P16) | ⬜ | Usuário |
@@ -38,7 +37,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 - ⬜ **Single-device é só client-side**: o JWT do aparelho antigo continua válido no servidor até expirar.
 - ⬜ **Docs obsoletos** (ainda descrevem o AbacatePay): `OPS_ABACATE_PRODUCTS_SETUP.md`, `OPS_WEBHOOK_ABACATEPAY.md`, `OPS_E2E_TEST.md` (precisa de reescrita para Asaas/cartão) e `backend/README.md`. `PROXIMOS_PASSOS.md` foi reescrito em 12/out (plano real); `PROXIMOS_PASSOS_TESTES_ASAAS.md` segue obsoleto (diz que há 0 testes Deno e sandbox pendente).
 - ⬜ **Casos de uso**: `CASOS_DE_USO.md` (UC-6.2) diz que o PDF usa MediaStore — passou a ser verdade só após o fix de 02/ago; reconferir o texto.
-- ⬜ Duas cópias do backend (`backend/` e `C:\repo\jardulli-subscription`): hoje sincronizadas, mas podem divergir de novo. Trabalhar só pelo `backend/`.
+- ✅ Duas cópias do backend: o clone antigo `C:epojardulli-subscription` foi apagado em 15/out; trabalhar só pelo `backend/`.
 - ⬜ Supabase CLI local está na 2.51.0 (atual: 2.120.0). O login é global: verificar com `supabase projects list` que `Jardulli Subscriptions` aparece antes de usar o CLI (ver `CLAUDE.md`).
 
 ---
@@ -69,6 +68,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 
 | Data | Item | Referência |
 |---|---|---|
+| 15/out/2026 | **P2 — Chaves do Supabase:** o usuário desabilitou as *legacy API keys* (a service-role vazada deixa de valer); o app e o site passaram a usar a *publishable key* (`sb_publishable_`), verificado: Auth e REST respondem, `profiles` sem login volta `[]` (RLS) e o build do app embute a publishable. Chaves antigas em `backend/.env` e `.secrets` já estavam revogadas; clone antigo do backend apagado | — |
 | 14/out/2026 | **P11 — SMTP próprio:** Resend configurado como SMTP do Supabase (DNS do domínio `agrosinergia.com.br` na KingHost); e-mails de cadastro e de recuperação chegando, testado pelo usuário | painéis Resend/Supabase/KingHost |
 | 14/out/2026 | **P10 — Recuperação de senha por código:** template Reset Password no Supabase e fluxo testado com e-mail real pelo usuário | jardulli-calculator#11 |
 | 13/out/2026 | Páginas públicas `/privacidade`, `/termos` e `/excluir-conta` no ar, com rodapé (razão social, CNPJ, endereço) | jardulli-subscription#4 e #5 |
