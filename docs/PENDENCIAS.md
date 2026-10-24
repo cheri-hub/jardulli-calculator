@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Deve ser atualizado a cada task concluída (regra no `CLAUDE.md`):
 > mover o item para "Resolvido" com data e PR, e registrar o que for descoberto no caminho.
-> **Última atualização:** 15/out/2026 · ordem de execução em [`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md)
+> **Última atualização:** 24/out/2026 · ordem de execução em [`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md)
 
 Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 
@@ -38,7 +38,10 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 - ⬜ **Single-device é só client-side**: o JWT do aparelho antigo continua válido no servidor até expirar.
 - ⬜ **Docs obsoletos** (ainda descrevem o AbacatePay): `OPS_ABACATE_PRODUCTS_SETUP.md`, `OPS_WEBHOOK_ABACATEPAY.md`, `OPS_E2E_TEST.md` (precisa de reescrita para Asaas/cartão) e `backend/README.md`. `PROXIMOS_PASSOS.md` foi reescrito em 12/out (plano real); `PROXIMOS_PASSOS_TESTES_ASAAS.md` segue obsoleto (diz que há 0 testes Deno e sandbox pendente).
 - ⬜ **Casos de uso**: `CASOS_DE_USO.md` (UC-6.2) diz que o PDF usa MediaStore — passou a ser verdade só após o fix de 02/ago; reconferir o texto.
-- ✅ Duas cópias do backend: o clone antigo `C:epojardulli-subscription` foi apagado em 15/out; trabalhar só pelo `backend/`.
+- ✅ Duas cópias do backend: o clone antigo `C:
+epojardulli-subscription` foi apagado em 15/out; trabalhar só pelo `backend/`.
+- 🔍 **PDF no plano Flexível (24/out):** app (`jardulli-calculator#21`), banco (`jardulli-subscription#10`, migration `20261024120000`) e site (`jardulli-digital-hub#3`). Vale em produção quando a migration for aplicada no merge do backend; instalações atuais pegam em até 1 h (cache do plano). **Falta:** conferir `plans.features.pdf` do `flexivel` no banco e gerar o PDF em aparelho real com conta Flexível (entra no roteiro da P3).
+- ⬜ **Link da Play Store no site:** a página `/produtos/aplicativo` mostra "Em breve na Google Play"; quando o app for publicado, preencher `PLAY_STORE_URL` em `src/lib/app-download.ts` (repo do hub).
 - ⬜ Supabase CLI local está na 2.51.0 (atual: 2.120.0). O login é global: verificar com `supabase projects list` que `Jardulli Subscriptions` aparece antes de usar o CLI (ver `CLAUDE.md`).
 
 ---
