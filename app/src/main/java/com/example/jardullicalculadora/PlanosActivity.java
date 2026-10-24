@@ -91,7 +91,7 @@ public class PlanosActivity extends AppCompatActivity {
                     break;
                 case FLEXIVEL:
                     txtPreco.setText("R$ 30/mês");
-                    txtFeatures.setText("✅ Balanços ilimitados\n✅ Lastro\n✅ Patinagem\n❌ PDF\n✅ Histórico\n📧 Email");
+                    txtFeatures.setText("✅ Balanços ilimitados\n✅ Lastro\n✅ Patinagem\n✅ PDF\n✅ Histórico\n📧 Email");
                     break;
                 case PROFISSIONAL:
                     txtPreco.setText("R$ 150/semestre (R$ 25/mês)");

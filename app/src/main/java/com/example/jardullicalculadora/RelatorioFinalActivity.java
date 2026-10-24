@@ -79,7 +79,7 @@ public class RelatorioFinalActivity extends AppCompatActivity {
             btnGerarPDF.setOnClickListener(v -> {
                 new androidx.appcompat.app.AlertDialog.Builder(this)
                         .setTitle("PDF Bloqueado")
-                        .setMessage("A geração de PDF está disponível nos planos Profissional e Frotista.")
+                        .setMessage("A geração de PDF está disponível nos planos pagos: Flexível, Profissional e Frotista.")
                         .setPositiveButton("Ver Planos", (d, w) -> {
                             if (SupabaseClient.getInstance().isLoggedIn()) {
                                 startActivity(new android.content.Intent(this, PlanosActivity.class));

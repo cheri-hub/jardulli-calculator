@@ -27,7 +27,7 @@ public class SuporteActivity extends AppCompatActivity {
             {"O que é patinagem?",
                     "Patinagem é o deslizamento percentual das rodas do trator em relação ao solo. A faixa ideal é de 0% a 8%. Valores acima indicam necessidade de ajuste no lastro."},
             {"Como gerar o relatório em PDF?",
-                    "O relatório PDF está disponível nos planos Profissional e Frotista. Ao concluir um balanço, clique em 'Gerar PDF' na tela de resultados."},
+                    "O relatório PDF está disponível nos planos pagos (Flexível, Profissional e Frotista). Ao concluir um balanço, clique em 'Gerar PDF' na tela de resultados."},
             {"Posso usar offline?",
                     "Sim! Os cálculos funcionam offline. Apenas login, sincronização de planos e pagamentos precisam de conexão à internet."},
             {"Como mudar de plano?",

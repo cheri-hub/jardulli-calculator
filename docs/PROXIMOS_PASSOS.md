@@ -62,7 +62,7 @@ Hoje **não existe "esqueci minha senha"**: o `SupabaseClient` só chama `signup
 
 Instalar `app\build\outputs\apk\release\app-release.apk` (assinado) ou o `debug`. Não usar o `app-release-260711.apk`, que é antigo. Roteiro:
 
-- [ ] **PDF** (plano Profissional/Frotista) no Android 10+: gera, salva em Downloads e abre.
+- [ ] **PDF** (qualquer plano pago, inclusive Flexível) no Android 10+: gera, salva em Downloads e abre.
 - [ ] **Transferência de aparelho:** logar no aparelho A, depois no B com o mesmo e-mail. Testar **Transferir** (A cai no próximo sync) e **Cancelar** (B é deslogado, A mantém).
 - [ ] **Cancelamento:** cancelar plano pago → badge "CANCELADA — Ativa até DD/MM" e acesso mantido.
 - [ ] **Recuperação de senha** (depois da Fase 1), com e-mail real.

@@ -40,7 +40,7 @@ Projeto: `jardulli-subscription` — Supabase Cloud + AbacatePay
 | Plano | Preço | Balanços/mês | Lastro | Patinagem | PDF | Histórico | Suporte |
 |-------|-------|-------------|--------|-----------|-----|-----------|---------|
 | **Testdrive** | R$0 | 1 | ✅ | ✅ | ❌ | ❌ | FAQ |
-| **Flexível** | R$30/mês | Ilimitado | ✅ | ✅ | ❌ | ✅ | Email |
+| **Flexível** | R$30/mês | Ilimitado | ✅ | ✅ | ✅ | ✅ | Email |
 | **Profissional** | R$25/mês (12m) | Ilimitado | ✅ | ✅ | ✅ | ✅ | WhatsApp |
 | **Frotista** | R$20/mês (24m) | Ilimitado | ✅ | ✅ | ✅ | ✅ | Prioritário |
 
