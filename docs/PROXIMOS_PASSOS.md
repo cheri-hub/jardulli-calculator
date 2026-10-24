@@ -83,7 +83,7 @@ Anotar o que falhar; **C** corrige e atualiza o `PENDENCIAS.md`.
 
 ## Fase 4 — Páginas web em produção (P12, P13 e P21) · U+C
 
-> **Atualização de 15/out:** o site oficial passou a ser o `jardulli-digital-hub` (`https://jardullimaquinas.com.br`), não mais o Next.js da VPS. O que falta está no **P21** do `PENDENCIAS.md`: deploy por FTP e teste (usuário), Site URL do Supabase Auth, redirecionamentos da VPS e URLs da Play Store. O texto abaixo descreve o site antigo e fica como histórico.
+> **Atualização de 15/out:** o site oficial passou a ser o `jardulli-digital-hub` (`https://jardullimaquinas.com.br`), não mais o Next.js da VPS. O que falta está no **P21** do `PENDENCIAS.md`: deploy por FTP e teste (usuário), Site URL do Supabase Auth, URLs da Play Store (os subdomínios antigos da VPS foram excluídos em 24/out, sem redirecionamento). O texto abaixo descreve o site antigo e fica como histórico.
 
 **Estado hoje (verificado em 12/out):** site Next.js 16 (`backend/apps/web`) no ar em `https://jardulli.agrosinergia.com.br` (VPS, nginx + systemd; o `deploy.yml` publica a cada push em `apps/web` na `main`, **sem ambiente de homologação**). Rotas: `/`, `/auth`, `/app`, `/app/profile`, `/completion`, `/return`, `/api/health`. O painel `/app` permite **cancelar assinatura** (chama `cancel-subscription` do navegador). `/completion` e `/return` são os destinos de redirecionamento do checkout do Asaas (`APP_COMPLETION_URL` / `APP_RETURN_URL`). `/privacidade` e `/termos` dão **404**; não há recuperação de senha. `supabase/test-app/` são páginas HTML de teste de desenvolvimento.
 
