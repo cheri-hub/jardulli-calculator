@@ -3,7 +3,7 @@ package com.example.jardullicalculadora;
 public enum Plano {
 
     TESTDRIVE("testdrive", 0, 1, false, false, "FAQ"),
-    FLEXIVEL("flexivel", 3000, -1, false, true, "EMAIL"),
+    FLEXIVEL("flexivel", 3000, -1, true, true, "EMAIL"),
     PROFISSIONAL("profissional", 15000, -1, true, true, "WHATSAPP"),
     FROTISTA("frotista", 24000, -1, true, true, "PRIORITARIO");
 

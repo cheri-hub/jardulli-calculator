@@ -162,8 +162,8 @@ Cadeia de Activities passando `DadosJardulli` (Parcelable) via Intent:
 | UC | Caso de uso | Resultado |
 |----|-------------|-----------|
 | UC-6.1 | Ver resultados | Mostra todos os cálculos finais na tela. |
-| UC-6.2 | **Gerar PDF** (Profissional/Frotista) | Cria o PDF (Downloads via MediaStore) e abre/compartilha; Toast "PDF gerado com sucesso!". |
-| UC-6.3 | "Gerar PDF" no Testdrive/Flexível | Botão a 50% de opacidade → dialog "PDF Bloqueado" (upsell). |
+| UC-6.2 | **Gerar PDF** (Flexível/Profissional/Frotista) | Cria o PDF (Downloads via MediaStore) e abre/compartilha; Toast "PDF gerado com sucesso!". |
+| UC-6.3 | "Gerar PDF" no Testdrive | Botão a 50% de opacidade → dialog "PDF Bloqueado" (upsell). |
 | UC-6.4 | Abrir PDF sem leitor instalado | Salva em Downloads e oferece chooser/compartilhar; Toast informativo se nenhum app compatível. |
 | UC-6.5 | **Salvar balanço** automaticamente | Grava no SQLite local sempre; espelha na nuvem se logado **e** plano permite histórico (Flexível+). |
 | UC-6.6 | Espelhamento na nuvem falha | Não interrompe o fluxo — registro local é a fonte de verdade local. |
