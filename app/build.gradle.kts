@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.jardullicalculadora"
-    compileSdk = 35
+    compileSdk = 36
 
     val localProps = rootProject.file("local.properties")
     val properties = Properties()
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId = "br.com.agrosinergia.jardulli"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
