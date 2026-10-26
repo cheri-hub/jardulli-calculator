@@ -29,7 +29,7 @@ supabase functions deploy <nome> --project-ref ljeroorpbqnlggiyyttb
 
 ## Stack
 
-- **App:** Java 11, Android SDK 35 (min 24), AGP 8.9.3 / Gradle 8.11.1, iText 7.2.5 (PDF), OkHttp 4.12, EncryptedSharedPreferences, SQLite.
+- **App:** Java 11, Android SDK 36 (compile/target; min 24), AGP 8.9.3 / Gradle 8.11.1, iText 7.2.5 (PDF), OkHttp 4.12, EncryptedSharedPreferences, SQLite.
 - **Backend:** Supabase (Auth, Postgres + RLS, Edge Functions em Deno) + gateway **Asaas v3** (substituiu o AbacatePay).
 
 ## Arquitetura do app
@@ -70,7 +70,7 @@ Conta e extras: `AuthActivity`, `PerfilActivity` (CPF/CNPJ Mod 11), `PlanosActiv
 ## CI/CD
 
 - **App:** `.github/workflows/android.yml` → lint, testes, `assembleDebug`.
-- **Backend:** `backend/.github/workflows/` → `supabase-ci.yml` (deno fmt/lint/check/test), `supabase-deploy.yml` (`db push` + deploy das functions no push em `main`; environment `production`, secrets `SUPABASE_ACCESS_TOKEN`/`PROJECT_ID`/`DB_PASSWORD` configurados nele), `deploy.yml` (web Next.js → VPS).
+- **Backend:** `backend/.github/workflows/` → `supabase-ci.yml` (deno fmt/lint/check/test), `supabase-deploy.yml` (`db push` + deploy das functions no push em `main`; environment `production`, secrets `SUPABASE_ACCESS_TOKEN`/`PROJECT_ID`/`DB_PASSWORD` configurados nele). O site Next.js e o `deploy.yml` da VPS foram removidos em 24/out.
 - Edge Functions: `subscribe`, `cancel-subscription`, `webhook-asaas` (`verify_jwt = false`, auth por header `asaas-access-token`), `check-expired`, `delete-account` (exclusão de conta; cancela no Asaas antes de apagar, ver `docs/OPS_EXCLUSAO_CONTA.md`). Projeto Supabase: `ljeroorpbqnlggiyyttb`.
 - **Site oficial:** `https://jardullimaquinas.com.br` = repositório `rpmarciano/jardulli-digital-hub` (Vite + React estático, deploy manual por FTP; clone em `C:/repo/jardulli-digital-hub`). Tem `/conta`, páginas legais e retorno do pagamento. O site Next.js em `backend/apps/web` (VPS) está **legado**: os subdomínios antigos (`jardulli.agrosinergia.com.br`, `jd-sub.cherihub.cloud`) foram excluídos em 24/out; não usar. O CORS do Supabase aceita só a origem do hub (`ALLOWED_ORIGINS`); ao mudar de domínio, trocar também `APP_COMPLETION_URL`/`APP_RETURN_URL` e o Site URL do Supabase Auth. Detalhes em `docs/PENDENCIAS.md` (P21).
 
