@@ -15,7 +15,7 @@ O template é **um só por tipo** e vale para o app e para o site (os dois usam 
 ## Variáveis usadas
 
 - `{{ .ConfirmationURL }}` — link de confirmação (cadastro).
-- `{{ .Token }}` — código de 6 dígitos (redefinição de senha, digitado no app).
+- `{{ .Token }}` — código numérico (6 a 10 dígitos, conforme *Email OTP Length* do Supabase Auth; redefinição de senha, digitado no app).
 - `{{ .Email }}` — e-mail da conta.
 
 ## Observações

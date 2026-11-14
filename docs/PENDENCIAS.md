@@ -2,7 +2,7 @@
 
 > **Documento vivo.** Deve ser atualizado a cada task concluída (regra no `CLAUDE.md`):
 > mover o item para "Resolvido" com data e PR, e registrar o que for descoberto no caminho.
-> **Última atualização:** 24/out/2026 · ordem de execução em [`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md)
+> **Última atualização:** 14/nov/2026 · ordem de execução em [`PROXIMOS_PASSOS.md`](PROXIMOS_PASSOS.md)
 
 Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 
@@ -44,6 +44,7 @@ Legenda: ⬜ aberto · 🔍 a confirmar · ✅ resolvido
 epojardulli-subscription` foi apagado em 15/out; trabalhar só pelo `backend/`.
 - 🔍 **PDF no plano Flexível (24/out):** app (`jardulli-calculator#21`), banco (`jardulli-subscription#10`, migration `20261024120000`) e site (`jardulli-digital-hub#3`). Vale em produção quando a migration for aplicada no merge do backend; instalações atuais pegam em até 1 h (cache do plano). **Falta:** conferir `plans.features.pdf` do `flexivel` no banco e gerar o PDF em aparelho real com conta Flexível (entra no roteiro da P3).
 - ⬜ **Link da Play Store no site:** a página `/produtos/aplicativo` mostra "Em breve na Google Play"; quando o app for publicado, preencher `PLAY_STORE_URL` em `src/lib/app-download.ts` (repo do hub).
+- 🔍 **Código de recuperação de senha: servidor enviava 8 dígitos e o app aceitava só 6 (24/nov).** O *Email OTP Length* no painel do Supabase Auth estava em 8 (o `backend/supabase/config.toml` diz 6); o campo do app cortava no 6º dígito. App corrigido para aceitar 6 a 10 dígitos (`SenhaValidator`, versão 1.0.1 / `versionCode` 2). **Falta:** (a) usuário: no painel, Authentication → Sign In / Providers → Email → *Email OTP Length* = **6**, para que as versões já instaladas (`versionCode` 1, no teste da Play) também funcionem; (b) subir o AAB 1.0.1 na Play; (c) testar a recuperação de senha de ponta a ponta.
 - ⬜ Supabase CLI local está na 2.51.0 (atual: 2.120.0). O login é global: verificar com `supabase projects list` que `Jardulli Subscriptions` aparece antes de usar o CLI (ver `CLAUDE.md`).
 
 ---

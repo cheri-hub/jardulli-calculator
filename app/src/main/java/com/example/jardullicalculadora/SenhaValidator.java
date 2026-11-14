@@ -13,10 +13,13 @@ public final class SenhaValidator {
 
     /** Mesmo mínimo exigido no cadastro (AuthActivity). */
     public static final int TAMANHO_MINIMO_SENHA = 6;
-    public static final int TAMANHO_CODIGO = 6;
+    /** O Supabase permite configurar o tamanho do código por e-mail de 6 a 10 dígitos. */
+    public static final int TAMANHO_MINIMO_CODIGO = 6;
+    public static final int TAMANHO_MAXIMO_CODIGO = 10;
 
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
-    private static final Pattern CODIGO = Pattern.compile("^\\d{" + TAMANHO_CODIGO + "}$");
+    private static final Pattern CODIGO = Pattern.compile(
+            "^\\d{" + TAMANHO_MINIMO_CODIGO + "," + TAMANHO_MAXIMO_CODIGO + "}$");
 
     private SenhaValidator() {}
 
@@ -30,7 +33,7 @@ public final class SenhaValidator {
     public static String validarCodigo(String codigo) {
         String valor = codigo == null ? "" : codigo.trim();
         if (!CODIGO.matcher(valor).matches()) {
-            return "Informe o código de " + TAMANHO_CODIGO + " dígitos";
+            return "Informe o código que enviamos por e-mail (somente números)";
         }
         return null;
     }
