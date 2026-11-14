@@ -43,7 +43,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Informe o e-mail da sua conta. Enviaremos um código de 6 dígitos."
+                android:text="Informe o e-mail da sua conta. Enviaremos um código por e-mail."
                 android:textSize="14sp"
                 android:textColor="#616161"
                 android:layout_marginBottom="16dp" />
@@ -100,8 +100,8 @@
                     android:id="@+id/editCodigo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Código de 6 dígitos"
-                    android:maxLength="6"
+                    android:hint="Código recebido por e-mail"
+                    android:maxLength="10"
                     android:textColor="#212121"
                     android:textColorHint="#757575"
                     android:inputType="number" />

@@ -39,8 +39,18 @@ public class SenhaValidatorTest {
     @Test
     public void codigo_tamanhoErradoOuComLetras_invalido() {
         assertNotNull(SenhaValidator.validarCodigo("12345"));
-        assertNotNull(SenhaValidator.validarCodigo("1234567"));
+        assertNotNull(SenhaValidator.validarCodigo("12345678901"));
         assertNotNull(SenhaValidator.validarCodigo("12a456"));
+        assertNotNull(SenhaValidator.validarCodigo("1234 5678"));
+    }
+
+    @Test
+    public void codigo_entreSeisEDezDigitos_aceito() {
+        // O Supabase permite configurar o tamanho do código (6 a 10); o servidor
+        // chegou a enviar 8 dígitos e o app só aceitava 6.
+        assertNull(SenhaValidator.validarCodigo("27371727"));
+        assertNull(SenhaValidator.validarCodigo("1234567"));
+        assertNull(SenhaValidator.validarCodigo("1234567890"));
     }
 
     @Test

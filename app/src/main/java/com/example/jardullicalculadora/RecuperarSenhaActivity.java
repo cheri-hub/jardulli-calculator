@@ -15,7 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONObject;
 
 /**
- * Recuperação de senha por código de 6 dígitos enviado por e-mail.
+ * Recuperação de senha por código numérico enviado por e-mail.
  *
  * Passo 1: informa o e-mail e pede o código.
  * Passo 2: informa código + nova senha. A sessão temporária devolvida pelo
